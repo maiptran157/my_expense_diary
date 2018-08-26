@@ -5,7 +5,9 @@
 /**
  * Listen for the document to load and initialize the application
  */
-$(document).ready();
+$(document).ready(
+      initializeApp()
+);
 
 /**
  * Define all global variables here.  
@@ -20,13 +22,17 @@ $(document).ready();
  * ];
  */
 var student_array = [];
+var totalGrade = 0;
+var gradeAverage = 0;
 /***************************************************************************************************
  * initializeApp 
  * @params {undefined} none
  * @returns: {undefined} none
  * initializes the application, including adding click handlers and pulling in any data from the server, in later versions
  */
-function initializeApp() {}
+function initializeApp() {
+      addClickHandlersToElements();
+}
 
 /***************************************************************************************************
  * addClickHandlerstoElements
@@ -84,7 +90,7 @@ function clearAddStudentFormInputs() {
  * @param {object} studentObj a single student object with course, name, and grade inside
  */
 function renderStudentOnDom() {
-      var newTr = $("<tr>",{
+      var newTr = $("<tr>", {
             class: "well"
       })
       var studentNameOuput = $("<td>", {
@@ -117,21 +123,32 @@ function renderStudentOnDom() {
  * @calls renderStudentOnDom, calculateGradeAverage, renderGradeAverage
  */
 function updateStudentList() {
-      renderStudentOnDom()
+      renderStudentOnDom();
+      renderGradeAverage();
 }
 /***************************************************************************************************
  * calculateGradeAverage - loop through the global student array and calculate average grade and return that value
  * @param: {array} students  the array of student objects
  * @returns {number}
  */
-function calculateGradeAverage() {}
+function calculateGradeAverage() {
+      totalGrade = 0;
+      gradeAverage = 0;
+      for (var studentArrayIndex = 0; studentArrayIndex < student_array.length; studentArrayIndex++) {
+            console.log("gradeAti:",parseInt(student_array[studentArrayIndex].grade))
+            totalGrade += parseInt(student_array[studentArrayIndex].grade);
+      }
+      gradeAverage = totalGrade / (student_array.length);
+      console.log("totalGrade:",totalGrade);
+      console.log("gradeAverage:",gradeAverage);
+      return gradeAverage;
+}
 /***************************************************************************************************
  * renderGradeAverage - updates the on-page grade average
  * @param: {number} average    the grade average
  * @returns {undefined} none
  */
-function renderGradeAverage() {}
-
-function deleteStudentFromList() {
-
+function renderGradeAverage() {
+      calculateGradeAverage();
+      $(".avgGrade").text(parseInt(gradeAverage));
 }
