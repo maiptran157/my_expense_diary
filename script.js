@@ -40,7 +40,9 @@ function initializeApp() {
  * @returns  {undefined}
  *     
  */
-function addClickHandlersToElements() {}
+function addClickHandlersToElements() {
+      //$('.student-list-container .student-list tbody').on('click','.deleteBtn',deleteStudent);
+}
 
 /***************************************************************************************************
  * handleAddClicked - Event Handler when user clicks the add button
@@ -104,8 +106,8 @@ function renderStudentOnDom() {
       })
       var deleteBtn = $("<td>").append($("<button>", {
             type: "button",
-            class: "btn btn-danger",
-            onclick: "",
+            class: "deleteBtn btn btn-danger",
+            onclick: "deleteStudent()",
             text: "Delete"
       }))
       var lastObjInStudentArray = student_array[student_array.length - 1]
@@ -135,12 +137,9 @@ function calculateGradeAverage() {
       totalGrade = 0;
       gradeAverage = 0;
       for (var studentArrayIndex = 0; studentArrayIndex < student_array.length; studentArrayIndex++) {
-            console.log("gradeAti:",parseInt(student_array[studentArrayIndex].grade))
             totalGrade += parseInt(student_array[studentArrayIndex].grade);
       }
       gradeAverage = totalGrade / (student_array.length);
-      console.log("totalGrade:",totalGrade);
-      console.log("gradeAverage:",gradeAverage);
       return gradeAverage;
 }
 /***************************************************************************************************
@@ -151,4 +150,15 @@ function calculateGradeAverage() {
 function renderGradeAverage() {
       calculateGradeAverage();
       $(".avgGrade").text(parseInt(gradeAverage));
+}
+
+function deleteStudent() {
+      console.log("delete button is clicked!");
+      //find indexOf student_array.indexOf()
+      //remove entire obj
+      renderDeleteStudent();
+}
+
+function renderDeleteStudent() {
+      $(event.currentTarget).closest('tr').remove();
 }
