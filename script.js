@@ -41,7 +41,6 @@ function initializeApp() {
  *     
  */
 function addClickHandlersToElements() {
-      //$('.student-list-container .student-list tbody').on('click','.deleteBtn',deleteStudent);
 }
 
 /***************************************************************************************************
@@ -51,10 +50,7 @@ function addClickHandlersToElements() {
        none
  */
 function handleAddClicked() {
-      addStudent()
-      console.log(student_array);
-      updateStudentList();
-      clearAddStudentFormInputs()
+      addStudent();
 }
 /***************************************************************************************************
  * handleCancelClicked - Event Handler when user clicks the cancel button, should clear out student form
@@ -77,6 +73,8 @@ function addStudent() {
       studentVal.course = $("#course").val();
       studentVal.grade = $("#studentGrade").val();
       student_array.push(studentVal);
+      updateStudentList();
+      clearAddStudentFormInputs();
 }
 /***************************************************************************************************
  * clearAddStudentForm - clears out the form values based on inputIds variable
@@ -92,28 +90,28 @@ function clearAddStudentFormInputs() {
  * @param {object} studentObj a single student object with course, name, and grade inside
  */
 function renderStudentOnDom() {
+      var lastObjInStudentArray = student_array[student_array.length - 1]
       var newTr = $("<tr>", {
             class: "well"
       })
       var studentNameOuput = $("<td>", {
-            class: "studentNameOuput"
+            class: "studentNameOuput",
+            text: lastObjInStudentArray.name
       })
       var studentCourseOutput = $("<td>", {
-            class: "studentCourseOuput"
+            class: "studentCourseOutput",
+            text: lastObjInStudentArray.course
       })
       var studentGradeOutput = $("<td>", {
-            class: "studentGradeOutput"
+            class: "studentGradeOutput",
+            text: lastObjInStudentArray.grade
       })
       var deleteBtn = $("<td>").append($("<button>", {
             type: "button",
             class: "deleteBtn btn btn-danger",
-            onclick: "deleteStudent()",
+            onclick: "handleDeleteStudent()",
             text: "Delete"
       }))
-      var lastObjInStudentArray = student_array[student_array.length - 1]
-      studentNameOuput.text(lastObjInStudentArray.name);
-      studentCourseOutput.text(lastObjInStudentArray.course);
-      studentGradeOutput.text(lastObjInStudentArray.grade);
       $(".student-list tbody").append(newTr)
       newTr.append(studentNameOuput, studentCourseOutput, studentGradeOutput, deleteBtn)
 }
@@ -126,6 +124,7 @@ function renderStudentOnDom() {
  */
 function updateStudentList() {
       renderStudentOnDom();
+      calculateGradeAverage();
       renderGradeAverage();
 }
 /***************************************************************************************************
@@ -148,15 +147,29 @@ function calculateGradeAverage() {
  * @returns {undefined} none
  */
 function renderGradeAverage() {
-      calculateGradeAverage();
       $(".avgGrade").text(parseInt(gradeAverage));
 }
 
-function deleteStudent() {
-      console.log("delete button is clicked!");
-      //find indexOf student_array.indexOf()
-      //remove entire obj
+function handleDeleteStudent() {
+      deleteStudent();
       renderDeleteStudent();
+}
+
+function deleteStudent() {
+      // let studentIndex = student_array.indexOf(studentObj);
+      var $tr = $(event.currentTarget).closest('tr');
+      var nameText = $tr.find('.studentNameOuput').text();
+      var courseText = $tr.closest('tr').find('.studentCourseOutput').text();
+      var gradeText = $tr.closest('tr').find('.studentGradeOutput').text();
+      for (var indexOfArray = 0; indexOfArray < student_array.length; indexOfArray++) {
+            if (student_array[indexOfArray].name === nameText) {
+                  if (student_array[indexOfArray].course === courseText) {
+                        if (student_array[indexOfArray].grade === gradeText) {
+                              student_array.splice(indexOfArray, 1)
+                        }
+                  }
+            }
+      }
 }
 
 function renderDeleteStudent() {
