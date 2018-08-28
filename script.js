@@ -21,7 +21,7 @@ $(document).ready(
  *  { name: 'Jill', course: 'Comp Sci', grade: 85 }
  * ];
  */
-var student_array = [];
+var studentArray = [];
 var totalGrade = 0;
 var gradeAverage = 0;
 /***************************************************************************************************
@@ -40,8 +40,7 @@ function initializeApp() {
  * @returns  {undefined}
  *     
  */
-function addClickHandlersToElements() {
-}
+function addClickHandlersToElements() {}
 
 /***************************************************************************************************
  * handleAddClicked - Event Handler when user clicks the add button
@@ -67,12 +66,13 @@ function handleCancelClick() {
  * @return undefined
  * @calls clearAddStudentFormInputs, updateStudentList
  */
-function addStudent() {
-      var studentVal = {};
+
+function addStudent() { 
+      var studentVal = {}; //local student object
       studentVal.name = $("#studentName").val();
       studentVal.course = $("#course").val();
       studentVal.grade = $("#studentGrade").val();
-      student_array.push(studentVal);
+      studentArray.push(studentVal); //push to global student array
       updateStudentList();
       clearAddStudentFormInputs();
 }
@@ -90,7 +90,7 @@ function clearAddStudentFormInputs() {
  * @param {object} studentObj a single student object with course, name, and grade inside
  */
 function renderStudentOnDom() {
-      var lastObjInStudentArray = student_array[student_array.length - 1]
+      var lastObjInStudentArray = studentArray[studentArray.length - 1]
       var newTr = $("<tr>", {
             class: "well"
       })
@@ -135,10 +135,10 @@ function updateStudentList() {
 function calculateGradeAverage() {
       totalGrade = 0;
       gradeAverage = 0;
-      for (var studentArrayIndex = 0; studentArrayIndex < student_array.length; studentArrayIndex++) {
-            totalGrade += parseInt(student_array[studentArrayIndex].grade);
+      for (var studentArrayIndex = 0; studentArrayIndex < studentArray.length; studentArrayIndex++) {
+            totalGrade += parseInt(studentArray[studentArrayIndex].grade);
       }
-      gradeAverage = totalGrade / (student_array.length);
+      gradeAverage = totalGrade / (studentArray.length);
       return gradeAverage;
 }
 /***************************************************************************************************
@@ -156,20 +156,11 @@ function handleDeleteStudent() {
 }
 
 function deleteStudent() {
-      // let studentIndex = student_array.indexOf(studentObj);
+      console.log("initial student array:", studentArray);
       var $tr = $(event.currentTarget).closest('tr');
-      var nameText = $tr.find('.studentNameOuput').text();
-      var courseText = $tr.closest('tr').find('.studentCourseOutput').text();
-      var gradeText = $tr.closest('tr').find('.studentGradeOutput').text();
-      for (var indexOfArray = 0; indexOfArray < student_array.length; indexOfArray++) {
-            if (student_array[indexOfArray].name === nameText) {
-                  if (student_array[indexOfArray].course === courseText) {
-                        if (student_array[indexOfArray].grade === gradeText) {
-                              student_array.splice(indexOfArray, 1)
-                        }
-                  }
-            }
-      }
+      var rowIndex = $tr.index();
+      console.log("rowIndex:", rowIndex);
+      studentArray.splice(rowIndex, 1)
 }
 
 function renderDeleteStudent() {
