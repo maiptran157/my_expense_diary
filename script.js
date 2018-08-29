@@ -5,9 +5,7 @@
 /**
  * Listen for the document to load and initialize the application
  */
-$(document).ready(
-      initializeApp()
-);
+$(document).ready(initializeApp);
 
 /**
  * Define all global variables here.  
@@ -24,6 +22,7 @@ $(document).ready(
 var studentArray = [];
 var totalGrade = 0;
 var gradeAverage = 0;
+var result = {};
 /***************************************************************************************************
  * initializeApp 
  * @params {undefined} none
@@ -40,7 +39,11 @@ function initializeApp() {
  * @returns  {undefined}
  *     
  */
-function addClickHandlersToElements() {}
+function addClickHandlersToElements() {
+      $(".addStudent").click(handleAddClicked);
+      $(".cancelStudent").click(handleCancelClick)
+      $(".getData").click(getDataFromServer);
+}
 
 /***************************************************************************************************
  * handleAddClicked - Event Handler when user clicks the add button
@@ -67,7 +70,7 @@ function handleCancelClick() {
  * @calls clearAddStudentFormInputs, updateStudentList
  */
 
-function addStudent() { 
+function addStudent() {
       var studentVal = {}; //local student object
       studentVal.name = $("#studentName").val();
       studentVal.course = $("#course").val();
@@ -156,13 +159,31 @@ function handleDeleteStudent() {
 }
 
 function deleteStudent() {
-      console.log("initial student array:", studentArray);
       var $tr = $(event.currentTarget).closest('tr');
       var rowIndex = $tr.index();
-      console.log("rowIndex:", rowIndex);
       studentArray.splice(rowIndex, 1)
 }
 
 function renderDeleteStudent() {
       $(event.currentTarget).closest('tr').remove();
+}
+
+function getDataFromServer() {
+      $.ajax({
+            url: "http://s-apis.learningfuze.com/sgt/get",
+            dataType: 'JSON',
+            method: 'POST',
+            data: {
+                  api_key: '3wi5PvJgB7'
+            },
+            success: function (serverResponse) {
+                  result = serverResponse;
+                  if (result.success) {
+                        for (var i = 0; i < result.data.length; i++) {
+                              studentArray.push(result.data[i]);
+                              updateStudentList();
+                        }
+                  }
+            }
+      })
 }
