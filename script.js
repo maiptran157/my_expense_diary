@@ -20,8 +20,6 @@ $(document).ready(initializeApp);
  * ];
  */
 var studentArray = [];
-var totalGrade = 0;
-var gradeAverage = 0;
 var result = {};
 /***************************************************************************************************
  * initializeApp 
@@ -41,7 +39,7 @@ function initializeApp() {
  */
 function addClickHandlersToElements() {
       $(".addStudent").click(handleAddClicked);
-      $(".cancelStudent").click(handleCancelClick)
+      $(".cancelStudent").click(handleCancelClick);
       $(".getData").click(getDataFromServer);
 }
 
@@ -61,7 +59,7 @@ function handleAddClicked() {
  * @calls: clearAddStudentFormInputs
  */
 function handleCancelClick() {
-      clearAddStudentFormInputs()
+      clearAddStudentFormInputs();
 }
 /***************************************************************************************************
  * addStudent - creates a student objects based on input fields in the form and adds the object to global student array
@@ -93,30 +91,37 @@ function clearAddStudentFormInputs() {
  * @param {object} studentObj a single student object with course, name, and grade inside
  */
 function renderStudentOnDom() {
-      var lastObjInStudentArray = studentArray[studentArray.length - 1]
+      var lastObjInStudentArray = studentArray[studentArray.length - 1];
       var newTr = $("<tr>", {
             class: "well"
-      })
+      });
       var studentNameOuput = $("<td>", {
             class: "studentNameOuput",
             text: lastObjInStudentArray.name
-      })
+      });
       var studentCourseOutput = $("<td>", {
             class: "studentCourseOutput",
             text: lastObjInStudentArray.course
-      })
+      });
       var studentGradeOutput = $("<td>", {
             class: "studentGradeOutput",
             text: lastObjInStudentArray.grade
-      })
+      });
       var deleteBtn = $("<td>").append($("<button>", {
             type: "button",
             class: "deleteBtn btn btn-danger",
-            onclick: "handleDeleteStudent()",
             text: "Delete"
-      }))
-      $(".student-list tbody").append(newTr)
-      newTr.append(studentNameOuput, studentCourseOutput, studentGradeOutput, deleteBtn)
+      }));
+      (function () {
+            deleteBtn.click(function () {
+                  var indexOfCurrentStudent = studentArray.indexOf(lastObjInStudentArray);
+                  studentArray.splice(indexOfCurrentStudent, 1);
+                  newTr.remove();
+                  renderGradeAverage();
+            })
+      })();
+      $(".student-list tbody").append(newTr);
+      newTr.append(studentNameOuput, studentCourseOutput, studentGradeOutput, deleteBtn);
 }
 
 /***************************************************************************************************
@@ -136,11 +141,11 @@ function updateStudentList() {
  * @returns {number}
  */
 function calculateGradeAverage() {
-      totalGrade = 0;
-      gradeAverage = 0;
+      var totalGrade = 0;
+      var gradeAverage = 0;
       for (var studentArrayIndex = 0; studentArrayIndex < studentArray.length; studentArrayIndex++) {
             totalGrade += parseInt(studentArray[studentArrayIndex].grade);
-      }
+      };
       gradeAverage = totalGrade / (studentArray.length);
       return gradeAverage;
 }
@@ -150,22 +155,7 @@ function calculateGradeAverage() {
  * @returns {undefined} none
  */
 function renderGradeAverage() {
-      $(".avgGrade").text(parseInt(gradeAverage));
-}
-
-function handleDeleteStudent() {
-      deleteStudent();
-      renderDeleteStudent();
-}
-
-function deleteStudent() {
-      var $tr = $(event.currentTarget).closest('tr');
-      var rowIndex = $tr.index();
-      studentArray.splice(rowIndex, 1)
-}
-
-function renderDeleteStudent() {
-      $(event.currentTarget).closest('tr').remove();
+      $(".avgGrade").text(Math.round(calculateGradeAverage()));
 }
 
 function getDataFromServer() {
@@ -182,8 +172,8 @@ function getDataFromServer() {
                         for (var i = 0; i < result.data.length; i++) {
                               studentArray.push(result.data[i]);
                               updateStudentList();
-                        }
-                  }
+                        };
+                  };
             }
-      })
+      });
 }
