@@ -29,6 +29,7 @@ var result = {};
  */
 function initializeApp() {
       addClickHandlersToElements();
+      renderOptionOfCoursesOnDOM();
 }
 
 /***************************************************************************************************
@@ -71,7 +72,8 @@ function handleCancelClick() {
 function addStudent() {
       var studentVal = {}; //local student object
       studentVal.name = $("#studentName").val();
-      studentVal.course = $("#course").val();
+      // studentVal.course = $("#course").val();
+      studentVal.course = $("#course option:selected").val();
       studentVal.grade = $("#studentGrade").val();
       studentArray.push(studentVal); //push to global student array
       updateStudentList();
@@ -82,7 +84,8 @@ function addStudent() {
  */
 function clearAddStudentFormInputs() {
       $("#studentName").val("");
-      $("#course").val("");
+       // $("#course").val("");
+      $('select').prop('selectedIndex', 0)
       $("#studentGrade").val("");
 }
 /***************************************************************************************************
@@ -147,6 +150,9 @@ function calculateGradeAverage() {
             totalGrade += parseInt(studentArray[studentArrayIndex].grade);
       };
       gradeAverage = totalGrade / (studentArray.length);
+      if(isNaN(gradeAverage)) {
+            gradeAverage = 0;
+      }
       return gradeAverage;
 }
 /***************************************************************************************************
@@ -177,3 +183,19 @@ function getDataFromServer() {
             }
       });
 }
+
+var courses = ['Accounting', 'Finance', 'Agriculture','American Studies','Anatomy','Anthropology','Archaeology','Architecture','Art',
+      'Business & Management Studies','Chemistry','Civil Engineering','Computer Science','Counselling','Economics','English','Fashion',
+      'Film Making','Forensic Science','French','Geography','Geology','History','Law','Marketing','Mathematics','Music',
+      'Physics and Astronomy','Politics','Psychology','Robotics','Sociology']
+function renderOptionOfCoursesOnDOM() {
+      for( var i = 0; i < courses.length; i++) {
+            var optionOfCourse = $("<option>",{
+                  value: courses[i],
+                  text: courses[i]
+            })
+            $('#course').append(optionOfCourse);
+      }
+}
+
+///isNaN return 0 for gradeAverage
