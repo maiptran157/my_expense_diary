@@ -20,7 +20,6 @@ $(document).ready(initializeApp);
  * ];
  */
 var studentArray = [];
-var result = {};
 /***************************************************************************************************
  * initializeApp 
  * @params {undefined} none
@@ -28,6 +27,7 @@ var result = {};
  * initializes the application, including adding click handlers and pulling in any data from the server, in later versions
  */
 function initializeApp() {
+      getDataFromServer();
       addClickHandlersToElements();
       renderOptionOfCoursesOnDOM();
 }
@@ -41,7 +41,7 @@ function initializeApp() {
 function addClickHandlersToElements() {
       $(".addStudent").click(handleAddClicked);
       $(".cancelStudent").click(handleCancelClick);
-      $(".getData").click(getDataFromServer);
+      // $(".getData").click(getDataFromServer);
 }
 
 /***************************************************************************************************
@@ -72,19 +72,19 @@ function handleCancelClick() {
 function addStudent() {
       var studentVal = {}; //local student object
       studentVal.name = $("#studentName").val();
-      // studentVal.course = $("#course").val();
       studentVal.course = $("#course option:selected").val();
       studentVal.grade = $("#studentGrade").val();
       studentArray.push(studentVal); //push to global student array
       updateStudentList();
       clearAddStudentFormInputs();
+      sendDataToServer();
 }
 /***************************************************************************************************
  * clearAddStudentForm - clears out the form values based on inputIds variable
  */
 function clearAddStudentFormInputs() {
       $("#studentName").val("");
-       // $("#course").val("");
+      // $("#course").val("");
       $('select').prop('selectedIndex', 0)
       $("#studentGrade").val("");
 }
@@ -118,9 +118,11 @@ function renderStudentOnDom() {
       (function () {
             deleteBtn.click(function () {
                   var indexOfCurrentStudent = studentArray.indexOf(lastObjInStudentArray);
+                  var studentID = lastObjInStudentArray.id;
                   studentArray.splice(indexOfCurrentStudent, 1);
                   newTr.remove();
                   renderGradeAverage();
+                  deleteStudentFromDatabase(studentID);
             })
       })();
       $(".student-list tbody").append(newTr);
@@ -150,7 +152,7 @@ function calculateGradeAverage() {
             totalGrade += parseInt(studentArray[studentArrayIndex].grade);
       };
       gradeAverage = totalGrade / (studentArray.length);
-      if(isNaN(gradeAverage)) {
+      if (isNaN(gradeAverage)) {
             gradeAverage = 0;
       }
       return gradeAverage;
@@ -173,6 +175,7 @@ function getDataFromServer() {
                   api_key: '3wi5PvJgB7'
             },
             success: function (serverResponse) {
+                  var result = {};
                   result = serverResponse;
                   if (result.success) {
                         for (var i = 0; i < result.data.length; i++) {
@@ -184,13 +187,15 @@ function getDataFromServer() {
       });
 }
 
-var courses = ['Accounting', 'Finance', 'Agriculture','American Studies','Anatomy','Anthropology','Archaeology','Architecture','Art',
-      'Business & Management Studies','Chemistry','Civil Engineering','Computer Science','Counselling','Economics','English','Fashion',
-      'Film Making','Forensic Science','French','Geography','Geology','History','Law','Marketing','Mathematics','Music',
-      'Physics and Astronomy','Politics','Psychology','Robotics','Sociology']
+var courses = ['Accounting', 'Finance', 'Agriculture', 'American Studies', 'Anatomy', 'Anthropology', 'Archaeology', 'Architecture', 'Art',
+      'Business & Management Studies', 'Chemistry', 'Civil Engineering', 'Computer Science', 'Counselling', 'Economics', 'English', 'Fashion',
+      'Film Making', 'Forensic Science', 'French', 'Geography', 'Geology', 'History', 'Law', 'Marketing', 'Mathematics', 'Music',
+      'Physics and Astronomy', 'Politics', 'Psychology', 'Robotics', 'Sociology'
+]
+
 function renderOptionOfCoursesOnDOM() {
-      for( var i = 0; i < courses.length; i++) {
-            var optionOfCourse = $("<option>",{
+      for (var i = 0; i < courses.length; i++) {
+            var optionOfCourse = $("<option>", {
                   value: courses[i],
                   text: courses[i]
             })
@@ -198,4 +203,49 @@ function renderOptionOfCoursesOnDOM() {
       }
 }
 
-///isNaN return 0 for gradeAverage
+function sendDataToServer() {
+      var lastObjInStudentArray = studentArray[studentArray.length - 1];
+      $.ajax({
+            dataType: 'JSON',
+            data: {
+                  api_key: '3wi5PvJgB7',
+                  name: lastObjInStudentArray.name,
+                  course: lastObjInStudentArray.course,
+                  grade: lastObjInStudentArray.grade,
+                  id: lastObjInStudentArray.id
+            },
+            method: 'POST',
+            url: 'http://s-apis.learningfuze.com/sgt/create',
+            success: function (serverResponse) {
+                  var result = serverResponse;
+                  if (result.success) {
+                        lastObjInStudentArray.id = result.new_id;
+                        console.log('You have successfully sent data.');
+                        console.log(result);
+                  }
+            },
+            error: function (serverResponse) {
+                  var result = serverResponse;
+                  console.log('You have failed to send data.');
+                  console.log(result);
+            }
+      })
+}
+
+function deleteStudentFromDatabase(idOfStudentToBeDeleted) {
+      var studentID = idOfStudentToBeDeleted;
+      $.ajax({
+            method: 'POST',
+            data: {
+                  api_key: '3wi5PvJgB7',
+                  student_id: studentID,
+            },
+            url: 'http://s-apis.learningfuze.com/sgt/delete',
+            success: function (serverResponse) {
+                  var result = serverResponse;
+                  if (result.success) {
+                        console.log('You have successfully deleted data.');
+                  };
+            },
+      });
+}
