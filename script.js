@@ -27,9 +27,10 @@ var studentArray = [];
  * initializes the application, including adding click handlers and pulling in any data from the server, in later versions
  */
 function initializeApp() {
-      getDataFromServer();
+      //getDataFromServer();
       addClickHandlersToElements();
       renderOptionOfCoursesOnDOM();
+      handleFocusInForForm();
 }
 
 /***************************************************************************************************
@@ -61,6 +62,9 @@ function handleAddClicked() {
  */
 function handleCancelClick() {
       clearAddStudentFormInputs();
+      clearWarningMessageForStudentName();
+      clearWarningMessageForStudentCourse();
+      clearWarningMessageForStudentGrade()
 }
 /***************************************************************************************************
  * addStudent - creates a student objects based on input fields in the form and adds the object to global student array
@@ -74,17 +78,64 @@ function addStudent() {
       studentVal.name = $("#studentName").val();
       studentVal.course = $("#course option:selected").val();
       studentVal.grade = $("#studentGrade").val();
+      //check if input contains alphabetical letters and length is greater than 2
+      var isLetter = /^[a-zA-Z]+$/.test(studentVal.name);
+      var isGreaterThan1Char =/[a-z]{2,}/gi.test(studentVal.name);
+      var conditionForLetter = (!isLetter && !isGreaterThan1Char)
+      //debugger;
+      if ( conditionForLetter && !studentVal.course) {
+            $("#studentName").val("");
+            $('select').prop('selectedIndex', 0)
+            showWarningMessageForStudentName();
+            showWarningMessageForStudentCourse();
+            if (!studentVal.grade || isNaN(studentVal.grade) || parseInt(studentVal.grade) < 0 || parseInt(studentVal.grade) > 100) {
+                  $("#studentGrade").val("");
+                  showWarningMessageForStudentGrade();
+            }
+            return;
+      } else if ((conditionForLetter && !studentVal.grade) || (conditionForLetter && isNaN(studentVal.grade)) || (conditionForLetter && parseInt(studentVal.grade) < 0) || (conditionForLetter && parseInt(studentVal.grade) > 100)) {
+            $("#studentName").val("");
+            $("#studentGrade").val("");
+            showWarningMessageForStudentName();
+            showWarningMessageForStudentGrade();
+            if (studentVal.course.length < 1) {
+                  $('select').prop('selectedIndex', 0)
+                  showWarningMessageForStudentCourse();
+            }
+            return;
+      } else if ((!studentVal.course && !studentVal.grade) || (!studentVal.course && isNaN(studentVal.grade)) ||(!studentVal.course && parseInt(studentVal.grade) < 0) || (!studentVal.course && parseInt(studentVal.grade) > 100)) {
+            $('select').prop('selectedIndex', 0);
+            $("#studentGrade").val("");
+            showWarningMessageForStudentCourse();
+            showWarningMessageForStudentGrade();
+            if (conditionForLetter) {
+                  $("#studentName").val("");
+                  showWarningMessageForStudentName();
+            }
+            return;
+      } else if (conditionForLetter) {
+            $("#studentName").val("");
+            showWarningMessageForStudentName();
+            return;
+      } else if (!studentVal.course) {
+            $('select').prop('selectedIndex', 0);
+            showWarningMessageForStudentCourse();
+            return;
+      } else if (!studentVal.grade || isNaN(studentVal.grade) || parseInt(studentVal.grade) < 0 || parseInt(studentVal.grade) > 100) {
+            $("#studentGrade").val("");
+            showWarningMessageForStudentGrade();
+            return;
+      }
       studentArray.push(studentVal); //push to global student array
       updateStudentList();
       clearAddStudentFormInputs();
-      sendDataToServer();
+      // sendDataToServer();
 }
 /***************************************************************************************************
  * clearAddStudentForm - clears out the form values based on inputIds variable
  */
 function clearAddStudentFormInputs() {
       $("#studentName").val("");
-      // $("#course").val("");
       $('select').prop('selectedIndex', 0)
       $("#studentGrade").val("");
 }
@@ -122,7 +173,7 @@ function renderStudentOnDom() {
                   studentArray.splice(indexOfCurrentStudent, 1);
                   newTr.remove();
                   renderGradeAverage();
-                  deleteStudentFromDatabase(studentID);
+                  // deleteStudentFromDatabase(studentID);
             })
       })();
       $(".student-list tbody").append(newTr);
@@ -221,13 +272,13 @@ function sendDataToServer() {
                   if (result.success) {
                         lastObjInStudentArray.id = result.new_id;
                         console.log('You have successfully sent data.');
-                        console.log(result);
+                        console.log("result:", result);
                   }
             },
             error: function (serverResponse) {
                   var result = serverResponse;
                   console.log('You have failed to send data.');
-                  console.log(result);
+                  console.log("result:", result);
             }
       })
 }
@@ -248,4 +299,54 @@ function deleteStudentFromDatabase(idOfStudentToBeDeleted) {
                   };
             },
       });
+}
+
+//handle focusin for form
+
+function handleFocusInForForm() {
+      $("#studentName").focusin(function () {
+            clearWarningMessageForStudentName();
+      })
+      $("#course").focusin(function () {
+            clearWarningMessageForStudentCourse();
+      })
+      $("#studentGrade").focusin(function () {
+            clearWarningMessageForStudentGrade();
+      })
+}
+
+function showWarningMessageForStudentName() {
+      $(".glyphicon-user").closest('.input-group-addon').addClass('backgroundAndTextRed borderRed');
+      $("#studentName").addClass('borderRed');
+      $("#studentName").closest('.form-group').next('.warningText').removeClass('hidden');
+}
+
+function showWarningMessageForStudentCourse() {
+      $(".glyphicon-list-alt").closest('.input-group-addon').addClass('backgroundAndTextRed borderRed');
+      $("#course").addClass('borderRed');
+      $("#course").closest('.form-group').next('.warningText').removeClass('hidden');
+}
+
+function showWarningMessageForStudentGrade() {
+      $(".glyphicon-education").closest('.input-group-addon').addClass('backgroundAndTextRed borderRed');
+      $("#studentGrade").addClass('borderRed');
+      $("#studentGrade").closest('.form-group').next('.warningText').removeClass('hidden');
+}
+
+function clearWarningMessageForStudentName() {
+      $(".glyphicon-user").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
+      $("#studentName").removeClass('borderRed');
+      $("#studentName").closest('.form-group').next('.warningText').addClass('hidden');
+}
+
+function clearWarningMessageForStudentCourse() {
+      $(".glyphicon-list-alt").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
+      $("#course").removeClass('borderRed');
+      $("#course").closest('.form-group').next('.warningText').addClass('hidden');
+}
+
+function clearWarningMessageForStudentGrade() {
+      $(".glyphicon-education").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
+      $("#studentGrade").removeClass('borderRed');
+      $("#studentGrade").closest('.form-group').next('.warningText').addClass('hidden');
 }
