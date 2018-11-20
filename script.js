@@ -130,7 +130,7 @@ function addStudent() {
       itemArray.push(ItemVal); //push to global student array
       updateStudentList();
       clearAddStudentFormInputs();
-      // sendDataToServer();
+      sendDataToServer();
 }
 /***************************************************************************************************
  * clearAddStudentForm - clears out the form values based on inputIds variable
@@ -152,19 +152,19 @@ function renderStudentOnDom() {
       });
       var itemNameOuput = $("<td>", {
             class: "itemNameOuput",
-            text: lastObjInitemArray.item_name
+            text: lastObjInitemArray.itemName
       });
       var studentCourseOutput = $("<td>", {
             class: "studentCourseOutput",
-            text: lastObjInitemArray.expense_category
+            text: lastObjInitemArray.expenseCategory
       });
       var transactionDateOutput = $("<td>", {
             class: "transactionDateOutput",
-            text: lastObjInitemArray.transaction_date
+            text: lastObjInitemArray.transactionDate
       });
       var amountSpentOutput = $("<td>", {
             class: "amountSpentOutput",
-            text: '$' + lastObjInitemArray.amount_spent
+            text: '$' + lastObjInitemArray.amountSpent
       });
       var deleteBtn = $("<td>").append($("<button>", {
             type: "button",
@@ -242,12 +242,6 @@ function getDataFromServer() {
       });
 }
 
-// var courses = ['Accounting', 'Finance', 'Agriculture', 'American Studies', 'Anatomy', 'Anthropology', 'Archaeology', 'Architecture', 'Art',
-//       'Business & Management Studies', 'Chemistry', 'Civil Engineering', 'Computer Science', 'Counselling', 'Economics', 'English', 'Fashion',
-//       'Film Making', 'Forensic Science', 'French', 'Geography', 'Geology', 'History', 'Law', 'Marketing', 'Mathematics', 'Music',
-//       'Physics and Astronomy', 'Politics', 'Psychology', 'Robotics', 'Sociology'
-// ]
-
 var categories = ['Grocery', 'Home Repairs', 'Mortgage/Rent', 'Clothes', 'Electronics', 'Home Appliances', 'Furniture', 'Entertainment', 'Dinning Out']
 
 function renderOptionOfCategoriesOnDOM() {
@@ -262,29 +256,37 @@ function renderOptionOfCategoriesOnDOM() {
 
 function sendDataToServer() {
       var lastObjInitemArray = itemArray[itemArray.length - 1];
+      var dataFromClient = {
+            itemName: lastObjInitemArray.itemName,
+            expenseCategory: lastObjInitemArray.expenseCategory,
+            transactionDate: lastObjInitemArray.transactionDate,
+            amountSpent: lastObjInitemArray.amountSpent,
+      }
       $.ajax({
             dataType: 'JSON',
             data: {
-                  api_key: '3wi5PvJgB7',
-                  name: lastObjInitemArray.name,
-                  course: lastObjInitemArray.course,
-                  grade: lastObjInitemArray.grade,
-                  id: lastObjInitemArray.id
+                  itemName: lastObjInitemArray.itemName,
+                  expenseCategory: lastObjInitemArray.expenseCategory,
+                  transactionDate: lastObjInitemArray.transactionDate,
+                  amountSpent: lastObjInitemArray.amountSpent,
             },
             method: 'POST',
-            url: 'http://s-apis.learningfuze.com/sgt/create',
+            url: api_url.add_item_url,
             success: function (serverResponse) {
-                  var result = serverResponse;
-                  if (result.success) {
-                        lastObjInitemArray.id = result.new_id;
-                        console.log('You have successfully sent data.');
-                        console.log("result:", result);
-                  }
+                  console.log("data from client:", dataFromClient)
+                  console.log(serverResponse)
+                  // var result = serverResponse;
+                  // if (result.success) {
+                  //       lastObjInitemArray.id = result.new_id;
+                  //       console.log('You have successfully sent data.');
+                  //       console.log("result:", result);
+                  // }
             },
             error: function (serverResponse) {
-                  var result = serverResponse;
-                  console.log('You have failed to send data.');
-                  console.log("result:", result);
+                  console.log(serverResponse)
+                  // var result = serverResponse;
+                  // console.log('You have failed to send data.');
+                  // console.log("result:", result);
             }
       })
 }
