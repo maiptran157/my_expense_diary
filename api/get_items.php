@@ -4,7 +4,7 @@ require_once('../config/mysql_connect.php');
 
 $output=[];
 
-$query = "SELECT * FROM items";
+$query = "SELECT id, item_name as itemName, expense_category as expenseCategory, transaction_date as transactionDate, amount_spent as amountSpent FROM items";
 
 $result = mysqli_query($conn, $query);
 
