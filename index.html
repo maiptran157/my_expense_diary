@@ -28,7 +28,7 @@
             color: #a94442;
             background-color: rgb(238, 159, 159);
         }
-        .warningText {
+        .warningText, .add-item-error {
             color:#cc4240;
         }
         .page-header {
@@ -99,6 +99,7 @@
             <button type="button" class="addItem btn btn-primary" onclick="">Add</button>
             <button type="button" class="cancelItem btn btn-default" onclick="">Cancel</button>
             <!-- <button type="button" class="getData btn btn-primary" onclick="">Get Data From Server</button> -->
+            <div class="add-item-error hidden">There was a problem trying to add this expense. Please try again.</div>
         </div>
         <div class="student-list-container container col-lg-8 col-md-8 col-sm-8 col-xs-12">
             <table class="item-list table">
