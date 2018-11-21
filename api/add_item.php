@@ -38,6 +38,6 @@ if(mysqli_num_rows($result) > 0){
 } else {
     $output['success'] = false;
     $output['message'] = 'There was an error trying to add the data. Please try again';
-;}
+}
 
 ?>
