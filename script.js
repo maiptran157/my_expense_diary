@@ -137,7 +137,8 @@ function addStudent() {
  */
 function clearAddStudentFormInputs() {
       $("#itemName").val("");
-      $('select').prop('selectedIndex', 0)
+      $('select').prop('selectedIndex', 0);
+      $("#transactionDate").val("");
       $("#amountSpent").val("");
 }
 /***************************************************************************************************
@@ -223,13 +224,11 @@ function renderGradeAverage() {
 }
 
 function getDataFromServer() {
-      console.log(api_url.get_items_url);
       $.ajax({
             url: api_url.get_items_url,
             dataType: 'JSON',
             method: 'GET',
             success: function (serverResponse) {
-                  console.log(serverResponse)
                   var result = {};
                   result = serverResponse;
                   if (result.success) {
@@ -256,12 +255,6 @@ function renderOptionOfCategoriesOnDOM() {
 
 function sendDataToServer() {
       var lastObjInitemArray = itemArray[itemArray.length - 1];
-      var dataFromClient = {
-            itemName: lastObjInitemArray.itemName,
-            expenseCategory: lastObjInitemArray.expenseCategory,
-            transactionDate: lastObjInitemArray.transactionDate,
-            amountSpent: lastObjInitemArray.amountSpent,
-      }
       $.ajax({
             dataType: 'JSON',
             data: {
@@ -273,20 +266,13 @@ function sendDataToServer() {
             method: 'POST',
             url: api_url.add_item_url,
             success: function (serverResponse) {
-                  console.log("data from client:", dataFromClient)
-                  console.log(serverResponse)
-                  // var result = serverResponse;
-                  // if (result.success) {
-                  //       lastObjInitemArray.id = result.new_id;
-                  //       console.log('You have successfully sent data.');
-                  //       console.log("result:", result);
-                  // }
+                  var result = serverResponse;
+                  if (result.success) {
+                        lastObjInitemArray.id = result.data[result.data.length - 1].id;
+                  }
             },
             error: function (serverResponse) {
-                  console.log(serverResponse)
-                  // var result = serverResponse;
-                  // console.log('You have failed to send data.');
-                  // console.log("result:", result);
+                  $(".add-item-error").removeClass('hidden')
             }
       })
 }
@@ -345,16 +331,25 @@ function clearWarningMessageForitemName() {
       $(".glyphicon-tag").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
       $("#itemName").removeClass('borderRed');
       $("#itemName").closest('.form-group').next('.warningText').addClass('hidden');
+      if (!$(".add-item-error").hasClass('hidden')) {
+            $(".add-item-error").addClass('hidden');
+      }
 }
 
 function clearWarningMessageForStudentCourse() {
       $(".glyphicon-list-alt").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
       $("#expenseCategory").removeClass('borderRed');
       $("#expenseCategory").closest('.form-group').next('.warningText').addClass('hidden');
+      if (!$(".add-item-error").hasClass('hidden')) {
+            $(".add-item-error").addClass('hidden');
+      }
 }
 
 function clearWarningMessageForamountSpent() {
       $(".glyphicon-usd").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
       $("#amountSpent").removeClass('borderRed');
       $("#amountSpent").closest('.form-group').next('.warningText').addClass('hidden');
+      if (!$(".add-item-error").hasClass('hidden')) {
+            $(".add-item-error").addClass('hidden');
+      }
 }
