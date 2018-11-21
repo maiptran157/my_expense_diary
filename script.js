@@ -167,11 +167,37 @@ function renderStudentOnDom() {
             class: "amountSpentOutput",
             text: '$' + lastObjInitemArray.amountSpent
       });
-      var deleteBtn = $("<td>").append($("<button>", {
+      var updateBtn = $("<button>", {
+            type: "button",
+            class: "updateBtn btn btn-update",
+            text: "Update"
+      });
+      (function () {
+            updateBtn.click(function () {
+                  var indexOfCurrentStudent = itemArray.indexOf(lastObjInitemArray);
+                  var studentID = lastObjInitemArray.id;
+                  $('.modal-title').text('Update this expense');
+                  $('.modal-body .modal-item-name').text(`Item Name: ${lastObjInitemArray.itemName}`);
+                  $('.modal-body .modal-expense-category').text(`Expense Category: ${lastObjInitemArray.expenseCategory}`);
+                  $('.modal-body .modal-transaction-date').text(`Transaction Date: ${lastObjInitemArray.transactionDate}`);
+                  $('.modal-body .modal-amount-spent').text(`Amount Spent: $${lastObjInitemArray.amountSpent}`);
+                  // (function () {
+                  //       $('.modal-delete-btn').click(function () {
+                  //             itemArray.splice(indexOfCurrentStudent, 1);
+                  //             newTr.remove();
+                  //             renderGradeAverage();
+                  //             deleteStudentFromDatabase(studentID);
+                  //             console.log("Item that was deleted:", lastObjInitemArray.itemName);
+                  //       });
+                  // })();
+                  $('.modal-update').modal('show');
+            })
+      })();
+      var deleteBtn = $("<button>", {
             type: "button",
             class: "deleteBtn btn btn-danger",
             text: "Delete"
-      }));
+      });
       (function () {
             deleteBtn.click(function () {
                   var indexOfCurrentStudent = itemArray.indexOf(lastObjInitemArray);
@@ -181,17 +207,21 @@ function renderStudentOnDom() {
                   $('.modal-body .modal-expense-category').text(`Expense Category: ${lastObjInitemArray.expenseCategory}`);
                   $('.modal-body .modal-transaction-date').text(`Transaction Date: ${lastObjInitemArray.transactionDate}`);
                   $('.modal-body .modal-amount-spent').text(`Amount Spent: $${lastObjInitemArray.amountSpent}`);
-                  $('.modal-delete-btn').click(function () {
-                        itemArray.splice(indexOfCurrentStudent, 1);
-                        newTr.remove();
-                        renderGradeAverage();
-                        deleteStudentFromDatabase(studentID);
-                  });
-                  $('.modal').modal('show');
+                  (function () {
+                        $('.modal-delete-btn').click(function () {
+                              itemArray.splice(indexOfCurrentStudent, 1);
+                              newTr.remove();
+                              renderGradeAverage();
+                              deleteStudentFromDatabase(studentID);
+                              console.log("Item that was deleted:", lastObjInitemArray.itemName);
+                        });
+                  })();
+                  $('.modal-delete').modal('show');
             })
       })();
+      var btnContainer = $("<td>").append(updateBtn, deleteBtn);
       $(".item-list tbody").append(newTr);
-      newTr.append(itemNameOuput, studentCourseOutput, transactionDateOutput, amountSpentOutput, deleteBtn);
+      newTr.append(itemNameOuput, studentCourseOutput, transactionDateOutput, amountSpentOutput, btnContainer);
 }
 
 /***************************************************************************************************
