@@ -179,7 +179,7 @@ function renderStudentOnDom() {
                   itemArray.splice(indexOfCurrentStudent, 1);
                   newTr.remove();
                   renderGradeAverage();
-                  // deleteStudentFromDatabase(studentID);
+                  deleteStudentFromDatabase(studentID);
             })
       })();
       $(".item-list tbody").append(newTr);
@@ -282,14 +282,13 @@ function deleteStudentFromDatabase(idOfStudentToBeDeleted) {
       $.ajax({
             method: 'POST',
             data: {
-                  api_key: '3wi5PvJgB7',
-                  student_id: studentID,
+                  itemID: studentID,
             },
-            url: 'http://s-apis.learningfuze.com/sgt/delete',
+            url: api_url.delete_item_url,
             success: function (serverResponse) {
                   var result = serverResponse;
                   if (result.success) {
-                        console.log('You have successfully deleted data.');
+                        console.log(result.message);
                   };
             },
       });
