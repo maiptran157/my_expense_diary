@@ -53,6 +53,13 @@
         .updateBtn, .deleteBtn {
             margin: 1.5%;
         }
+        #deleteModal .modal-dialog .modal-content .modal-header {
+            color: red;
+            text-align: center;
+        }
+        .modal-body{
+            font-size: 15px;
+        }
         /* @media only screen and (max-width:949px) {
             body {
                 background-color: pink;
@@ -145,7 +152,7 @@
 
     <!-- Modal for Delete Starts -->
     <!-- <div class="modal fade" id="myModal" role="dialog"> -->
-    <div class="modal modal-delete fade" role="dialog">
+    <div class="modal modal-delete fade" id="deleteModal" role="dialog">
         <div class="modal-dialog">
 
             <!-- Modal content-->
@@ -171,7 +178,7 @@
     <!-- Modal for Delete Ends -->
 
     <!-- Modal for Update Starts -->
-    <div class="modal modal-update fade" role="dialog">
+    <div class="modal modal-update fade" id="updateModal" role="dialog">
         <div class="modal-dialog">
 
             <!-- Modal content-->

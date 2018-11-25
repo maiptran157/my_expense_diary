@@ -200,15 +200,23 @@ function renderStudentOnDom() {
       });
       (function () {
             deleteBtn.click(function () {
-                  var indexOfCurrentStudent = itemArray.indexOf(lastObjInitemArray);
-                  var studentID = lastObjInitemArray.id;
                   $('.modal-title').text('Are you sure you want to delete this expense?');
-                  $('.modal-body .modal-item-name').text(`Item Name: ${lastObjInitemArray.itemName}`);
-                  $('.modal-body .modal-expense-category').text(`Expense Category: ${lastObjInitemArray.expenseCategory}`);
-                  $('.modal-body .modal-transaction-date').text(`Transaction Date: ${lastObjInitemArray.transactionDate}`);
-                  $('.modal-body .modal-amount-spent').text(`Amount Spent: $${lastObjInitemArray.amountSpent}`);
+                  $('.modal-body .modal-item-name').empty().append($("<label>", { text: "Item Name:" }), $("<span>", {
+                        text: ` ${lastObjInitemArray.itemName}`
+                  }));
+                  $('.modal-body .modal-expense-category').empty().append($("<label>", { text: "Expense Category:" }), $("<span>", {
+                        text: ` ${lastObjInitemArray.expenseCategory}`
+                  }));
+                  $('.modal-body .modal-transaction-date').empty().append($("<label>", { text: "Transaction Date:" }), $("<span>", {
+                        text: ` ${lastObjInitemArray.transactionDate}`
+                  }));
+                  $('.modal-body .modal-amount-spent').empty().append($("<label>", { text: "Amount Spent:" }), $("<span>", {
+                        text: ` ${lastObjInitemArray.amountSpent}`
+                  }));
                   (function () {
-                        $('.modal-delete-btn').click(function () {
+                        $('.modal-delete-btn').off("click").click(function () {
+                              var indexOfCurrentStudent = itemArray.indexOf(lastObjInitemArray);
+                              var studentID = lastObjInitemArray.id;
                               itemArray.splice(indexOfCurrentStudent, 1);
                               newTr.remove();
                               renderGradeAverage();
