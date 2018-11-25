@@ -177,10 +177,22 @@ function renderStudentOnDom() {
                   var indexOfCurrentStudent = itemArray.indexOf(lastObjInitemArray);
                   var studentID = lastObjInitemArray.id;
                   $('.modal-title').text('Update this expense');
-                  $('.modal-body .modal-item-name').text(`Item Name: ${lastObjInitemArray.itemName}`);
-                  $('.modal-body .modal-expense-category').text(`Expense Category: ${lastObjInitemArray.expenseCategory}`);
-                  $('.modal-body .modal-transaction-date').text(`Transaction Date: ${lastObjInitemArray.transactionDate}`);
-                  $('.modal-body .modal-amount-spent').text(`Amount Spent: $${lastObjInitemArray.amountSpent}`);
+                  // $('.update-body .modal-item-name').empty().append($("<label>", { text: "Item Name:" }), $("<input>", {
+                  //       value: ` ${lastObjInitemArray.itemName}`
+                  // }));
+                  // $('.update-body .modal-expense-category').empty().append($("<label>", { text: "Expense Category:" }), $("<input>", {
+                  //       value: ` ${lastObjInitemArray.expenseCategory}`
+                  // }));
+                  // $('.update-body .modal-transaction-date').empty().append($("<label>", { text: "Transaction Date:" }), $("<input>", {
+                  //       value: ` ${lastObjInitemArray.transactionDate}`
+                  // }));
+                  // $('.update-body .modal-amount-spent').empty().append($("<label>", { text: "Amount Spent:" }), $("<input>", {
+                  //       value: ` ${lastObjInitemArray.amountSpent}`
+                  // }));
+                  $('#itemNameUpdate').val(lastObjInitemArray.itemName);
+                  $('#expenseCategoryUpdate option:selected').val(lastObjInitemArray.expenseCategory);
+                  $('#transactionDateUpdate').val(lastObjInitemArray.transactionDate);
+                  $('#amountSpentUpdate').val(lastObjInitemArray.amountSpent);
                   // (function () {
                   //       $('.modal-delete-btn').click(function () {
                   //             itemArray.splice(indexOfCurrentStudent, 1);
@@ -201,16 +213,16 @@ function renderStudentOnDom() {
       (function () {
             deleteBtn.click(function () {
                   $('.modal-title').text('Are you sure you want to delete this expense?');
-                  $('.modal-body .modal-item-name').empty().append($("<label>", { text: "Item Name:" }), $("<span>", {
+                  $('.delete-body .modal-item-name').empty().append($("<label>", { text: "Item Name:" }), $("<span>", {
                         text: ` ${lastObjInitemArray.itemName}`
                   }));
-                  $('.modal-body .modal-expense-category').empty().append($("<label>", { text: "Expense Category:" }), $("<span>", {
+                  $('.delete-body .modal-expense-category').empty().append($("<label>", { text: "Expense Category:" }), $("<span>", {
                         text: ` ${lastObjInitemArray.expenseCategory}`
                   }));
-                  $('.modal-body .modal-transaction-date').empty().append($("<label>", { text: "Transaction Date:" }), $("<span>", {
+                  $('.delete-body .modal-transaction-date').empty().append($("<label>", { text: "Transaction Date:" }), $("<span>", {
                         text: ` ${lastObjInitemArray.transactionDate}`
                   }));
-                  $('.modal-body .modal-amount-spent').empty().append($("<label>", { text: "Amount Spent:" }), $("<span>", {
+                  $('.delete-body .modal-amount-spent').empty().append($("<label>", { text: "Amount Spent:" }), $("<span>", {
                         text: ` ${lastObjInitemArray.amountSpent}`
                   }));
                   (function () {
@@ -287,7 +299,7 @@ function getDataFromServer() {
       });
 }
 
-var categories = ['Grocery', 'Home Repairs', 'Mortgage/Rent', 'Clothes', 'Electronics', 'Home Appliances', 'Furniture', 'Entertainment', 'Dinning Out']
+var categories = ['Grocery', 'Home Repairs', 'Mortgage/Rent', 'Clothes', 'Electronics', 'Home Appliances', 'Furniture', 'Entertainment', 'Dining Out']
 
 function renderOptionOfCategoriesOnDOM() {
       for (var i = 0; i < categories.length; i++) {
@@ -295,7 +307,7 @@ function renderOptionOfCategoriesOnDOM() {
                   value: categories[i],
                   text: categories[i]
             })
-            $('#expenseCategory').append(optionOfCourse);
+            $('#expenseCategory, #expenseCategoryUpdate').append(optionOfCourse);
       }
 }
 
