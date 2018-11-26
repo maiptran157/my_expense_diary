@@ -20,6 +20,7 @@ $(document).ready(initializeApp);
  * ];
  */
 var itemArray = [];
+var deleteSuccess = null;
 /***************************************************************************************************
  * initializeApp 
  * @params {undefined} none
@@ -174,6 +175,9 @@ function renderStudentOnDom() {
       });
       (function () {
             updateBtn.click(function () {
+                  if (!$('.update-item-error').hasClass('hidden')) {
+                        $('.update-item-error').addClass('hidden')
+                  }
                   $('#itemNameUpdate').val(lastObjInitemArray.itemName);
                   for (var i = 0; i < categories.length; i++) {
                         if (categories[i] === lastObjInitemArray.expenseCategory) {
@@ -204,6 +208,10 @@ function renderStudentOnDom() {
       });
       (function () {
             deleteBtn.click(function () {
+                  deleteSuccess = false;
+                  if (!$('.delete-item-error').hasClass('hidden')) {
+                        $('.delete-item-error').addClass('hidden')
+                  }
                   $('.delete-body .modal-item-name').empty().append($("<label>", { text: "Item Name:" }), $("<span>", {
                         text: ` ${lastObjInitemArray.itemName}`
                   }));
@@ -220,11 +228,13 @@ function renderStudentOnDom() {
                         $('.modal-delete-btn').off("click").click(function () {
                               var indexOfCurrentStudent = itemArray.indexOf(lastObjInitemArray);
                               var studentID = lastObjInitemArray.id;
-                              itemArray.splice(indexOfCurrentStudent, 1);
-                              newTr.remove();
-                              renderGradeAverage();
                               deleteStudentFromDatabase(studentID);
-                              console.log("Item that was deleted:", lastObjInitemArray.itemName);
+                              if (deleteSuccess) {
+                                    itemArray.splice(indexOfCurrentStudent, 1);
+                                    newTr.remove();
+                                    renderGradeAverage();
+                              }
+                              // console.log("Item that was deleted:", lastObjInitemArray.itemName);
                         });
                   })();
                   $('.modal-delete').modal('show');
@@ -355,13 +365,16 @@ function updateDataToServer(idOfStudentToBeUpdated) {
                                     itemArray[i].amountSpent = ItemVal.amountSpent;
                               }
                         }
+                        $(".modal-update").modal('hide');
+                        $(".item-list tbody").empty();
+                        getDataFromServer();
+                  } else {
+                        $(".update-item-error").removeClass('hidden');
                   }
-                  $(".item-list tbody").empty();
-                  getDataFromServer();
             },
             error: function (serverResponse) {
-                  // $(".add-item-error").removeClass('hidden')
-                  console.log('There was en error trying to update the item. Please try again')
+                  $(".update-item-error").removeClass('hidden');
+                  // console.log('There was en error trying to update the item. Please try again')
             }
       })
 }
@@ -377,9 +390,15 @@ function deleteStudentFromDatabase(idOfStudentToBeDeleted) {
             success: function (serverResponse) {
                   var result = serverResponse;
                   if (result.success) {
-                        console.log(result.message);
+                        deleteSuccess = true;
+                        $(".modal-update").modal('hide');
+                  } else {
+                        $(".delete-item-error").removeClass('hidden');
                   };
             },
+            error: function () {
+                  $(".delete-item-error").removeClass('hidden');
+            }
       });
 }
 
@@ -394,6 +413,9 @@ function handleFocusInForForm() {
       })
       $("#amountSpent").focusin(function () {
             clearWarningMessageForamountSpent();
+      })
+      $("#itemNameUpdate, #expenseCategoryUpdate, #transactionDateUpdate, #amountSpentUpdate").focusin(function () {
+            clearUpdateError();
       })
 }
 
@@ -439,5 +461,11 @@ function clearWarningMessageForamountSpent() {
       $("#amountSpent").closest('.form-group').next('.warningText').addClass('hidden');
       if (!$(".add-item-error").hasClass('hidden')) {
             $(".add-item-error").addClass('hidden');
+      }
+}
+
+function clearUpdateError() {
+      if (!$(".update-item-error").hasClass('hidden')) {
+            $(".update-item-error").addClass('hidden');
       }
 }

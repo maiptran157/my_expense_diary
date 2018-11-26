@@ -5,6 +5,8 @@ $item_id = $_POST['itemID'];
 
 $deleteItemQuery = "DELETE FROM `items` WHERE `items`.`id` = '{$item_id}'";
 
+
+exit();
 mysqli_query($conn, $deleteItemQuery);
 
 $query = "SELECT DISTINCT * 

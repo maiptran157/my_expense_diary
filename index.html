@@ -59,7 +59,7 @@
             color: yellowgreen;
             text-align: center;
         }
-        #deleteModal .modal-dialog .modal-content .modal-header {
+        #deleteModal .modal-dialog .modal-content .modal-header, .update-item-error, .delete-item-error {
             color: red;
             text-align: center;
         }
@@ -174,9 +174,11 @@
                     <p class="modal-expense-category"></p>
                     <p class="modal-transaction-date"></p>
                     <p class="modal-amount-spent"></p>
+                    <div class="delete-item-error hidden">There was a problem trying to delete this expense. Please try
+                        again.</div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="modal-delete-btn btn btn-danger" data-dismiss="modal">Delete</button>
+                    <button type="button" class="modal-delete-btn btn btn-danger" data-dismiss="">Delete</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                 </div>
             </div>
@@ -238,9 +240,11 @@
                     <!-- <div class="form-group input-group warningText hidden">
                         <span>Must be at least $0.01</span>
                     </div> -->
+                    <div class="update-item-error hidden">There was a problem trying to update this expense. Please try
+                        again.</div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="modal-update-btn btn btn-update" data-dismiss="modal">Update</button>
+                    <button type="button" class="modal-update-btn btn btn-update" data-dismiss="">Update</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                 </div>
             </div>
