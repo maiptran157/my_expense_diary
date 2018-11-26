@@ -20,7 +20,6 @@ $(document).ready(initializeApp);
  * ];
  */
 var itemArray = [];
-var deleteSuccess = null;
 /***************************************************************************************************
  * initializeApp 
  * @params {undefined} none
@@ -85,17 +84,20 @@ function validateAndAddStudent() {
       var isGreaterThan1Char = /[a-z]{2,}/gi.test(ItemVal.itemName);
       var conditionForLetter = (!isLetter && !isGreaterThan1Char)
       //debugger;
+      if (!ItemVal.transactionDate) {
+            showWarningMessageForTransactionDate();
+      }
       if (conditionForLetter && !ItemVal.expenseCategory) {
             $("#itemName").val("");
             $('select').prop('selectedIndex', 0)
             showWarningMessageForitemName();
             showWarningMessageForStudentCourse();
-            if (!ItemVal.amountSpent || isNaN(ItemVal.amountSpent) || parseInt(ItemVal.amountSpent) < 0 || parseInt(ItemVal.amountSpent) > 100) {
+            if (!ItemVal.amountSpent || isNaN(ItemVal.amountSpent) || parseInt(ItemVal.amountSpent) < 0) {
                   $("#amountSpent").val("");
                   showWarningMessageForamountSpent();
             }
             return;
-      } else if ((conditionForLetter && !ItemVal.amountSpent) || (conditionForLetter && isNaN(ItemVal.amountSpent)) || (conditionForLetter && parseInt(ItemVal.amountSpent) < 0) || (conditionForLetter && parseInt(ItemVal.amountSpent) > 100)) {
+      } else if ((conditionForLetter && !ItemVal.amountSpent) || (conditionForLetter && isNaN(ItemVal.amountSpent)) || (conditionForLetter && parseInt(ItemVal.amountSpent) < 0) || (conditionForLetter)) {
             $("#itemName").val("");
             $("#amountSpent").val("");
             showWarningMessageForitemName();
@@ -105,7 +107,7 @@ function validateAndAddStudent() {
                   showWarningMessageForStudentCourse();
             }
             return;
-      } else if ((!ItemVal.expenseCategory && !ItemVal.amountSpent) || (!ItemVal.expenseCategory && isNaN(ItemVal.amountSpent)) || (!ItemVal.expenseCategory && parseInt(ItemVal.amountSpent) < 0) || (!ItemVal.expenseCategory && parseInt(ItemVal.amountSpent) > 100)) {
+      } else if ((!ItemVal.expenseCategory && !ItemVal.amountSpent) || (!ItemVal.expenseCategory && isNaN(ItemVal.amountSpent)) || (!ItemVal.expenseCategory && parseInt(ItemVal.amountSpent) < 0) || (!ItemVal.expenseCategory)) {
             $('select').prop('selectedIndex', 0);
             $("#amountSpent").val("");
             showWarningMessageForStudentCourse();
@@ -123,7 +125,7 @@ function validateAndAddStudent() {
             $('select').prop('selectedIndex', 0);
             showWarningMessageForStudentCourse();
             return;
-      } else if (!ItemVal.amountSpent || isNaN(ItemVal.amountSpent) || parseInt(ItemVal.amountSpent) < 0 || parseInt(ItemVal.amountSpent) > 100) {
+      } else if (!ItemVal.amountSpent || isNaN(ItemVal.amountSpent) || parseInt(ItemVal.amountSpent) < 0) {
             $("#amountSpent").val("");
             showWarningMessageForamountSpent();
             return;
@@ -208,7 +210,6 @@ function renderStudentOnDom() {
       });
       (function () {
             deleteBtn.click(function () {
-                  deleteSuccess = false;
                   if (!$('.delete-item-error').hasClass('hidden')) {
                         $('.delete-item-error').addClass('hidden')
                   }
@@ -228,12 +229,7 @@ function renderStudentOnDom() {
                         $('.modal-delete-btn').off("click").click(function () {
                               var indexOfCurrentStudent = itemArray.indexOf(lastObjInitemArray);
                               var studentID = lastObjInitemArray.id;
-                              deleteStudentFromDatabase(studentID);
-                              if (deleteSuccess) {
-                                    itemArray.splice(indexOfCurrentStudent, 1);
-                                    newTr.remove();
-                                    renderGradeAverage();
-                              }
+                              deleteStudentFromDatabase(studentID, indexOfCurrentStudent, newTr);
                               // console.log("Item that was deleted:", lastObjInitemArray.itemName);
                         });
                   })();
@@ -354,7 +350,6 @@ function updateDataToServer(idOfStudentToBeUpdated) {
             method: 'POST',
             url: api_url.update_item_url,
             success: function (serverResponse) {
-                  console.log("Server response:", serverResponse);
                   var result = serverResponse;
                   if (result.success) {
                         for (var i = 0; i < itemArray.length; i++) {
@@ -379,7 +374,7 @@ function updateDataToServer(idOfStudentToBeUpdated) {
       })
 }
 
-function deleteStudentFromDatabase(idOfStudentToBeDeleted) {
+function deleteStudentFromDatabase(idOfStudentToBeDeleted, indexOfCurrentStudent, newTr) {
       var studentID = idOfStudentToBeDeleted;
       $.ajax({
             method: 'POST',
@@ -390,8 +385,10 @@ function deleteStudentFromDatabase(idOfStudentToBeDeleted) {
             success: function (serverResponse) {
                   var result = serverResponse;
                   if (result.success) {
-                        deleteSuccess = true;
-                        $(".modal-update").modal('hide');
+                        itemArray.splice(indexOfCurrentStudent, 1);
+                        newTr.remove();
+                        renderGradeAverage();
+                        $(".modal-delete").modal('hide');
                   } else {
                         $(".delete-item-error").removeClass('hidden');
                   };
@@ -407,16 +404,19 @@ function deleteStudentFromDatabase(idOfStudentToBeDeleted) {
 function handleFocusInForForm() {
       $("#itemName").focusin(function () {
             clearWarningMessageForitemName();
-      })
+      });
       $("#expenseCategory").focusin(function () {
             clearWarningMessageForStudentCourse();
+      });
+      $("#transactionDate").focusin(function () {
+            clearWarningMessageForTransactionDate();
       })
       $("#amountSpent").focusin(function () {
             clearWarningMessageForamountSpent();
-      })
+      });
       $("#itemNameUpdate, #expenseCategoryUpdate, #transactionDateUpdate, #amountSpentUpdate").focusin(function () {
             clearUpdateError();
-      })
+      });
 }
 
 function showWarningMessageForitemName() {
@@ -429,6 +429,12 @@ function showWarningMessageForStudentCourse() {
       $(".glyphicon-list-alt").closest('.input-group-addon').addClass('backgroundAndTextRed borderRed');
       $("#expenseCategory").addClass('borderRed');
       $("#expenseCategory").closest('.form-group').next('.warningText').removeClass('hidden');
+}
+
+function showWarningMessageForTransactionDate() {
+      $(".glyphicon-calendar").closest('.input-group-addon').addClass('backgroundAndTextRed borderRed');
+      $("#transactionDate").addClass('borderRed');
+      $("#transactionDate").closest('.form-group').next('.warningText').removeClass('hidden');
 }
 
 function showWarningMessageForamountSpent() {
@@ -450,6 +456,15 @@ function clearWarningMessageForStudentCourse() {
       $(".glyphicon-list-alt").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
       $("#expenseCategory").removeClass('borderRed');
       $("#expenseCategory").closest('.form-group').next('.warningText').addClass('hidden');
+      if (!$(".add-item-error").hasClass('hidden')) {
+            $(".add-item-error").addClass('hidden');
+      }
+}
+
+function clearWarningMessageForTransactionDate() {
+      $(".glyphicon-calendar").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
+      $("#transactionDate").removeClass('borderRed');
+      $("#transactionDate").closest('.form-group').next('.warningText').addClass('hidden');
       if (!$(".add-item-error").hasClass('hidden')) {
             $(".add-item-error").addClass('hidden');
       }
