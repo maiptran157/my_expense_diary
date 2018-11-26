@@ -65,10 +65,10 @@ function handleAddClicked() {
  * handleCancelClicked - Event Handler when user clicks the cancel button, should clear out student form
  * @param: {undefined} none
  * @returns: {undefined} none
- * @calls: clearAddStudentFormInputs
+ * @calls: clearAddExpenseFormInputs
  */
 function handleCancelClick() {
-      clearAddStudentFormInputs();
+      clearAddExpenseFormInputs();
       clearWarningMessageForitemName();
       clearWarningMessageForStudentCourse();
       clearWarningMessageForamountSpent()
@@ -77,7 +77,7 @@ function handleCancelClick() {
  * addStudent - creates a student objects based on input fields in the form and adds the object to global student array
  * @param {undefined} none
  * @return undefined
- * @calls clearAddStudentFormInputs, updateItemList
+ * @calls clearAddExpenseFormInputs, updateItemList
  */
 
 function validateAndAddStudent() {
@@ -137,15 +137,15 @@ function validateAndAddStudent() {
             showWarningMessageForamountSpent();
             return;
       }
-      itemArray.push(ItemVal); //push to global student array
+      itemArray.push(ItemVal); //push to global item array
       updateItemList();
-      clearAddStudentFormInputs();
+      clearAddExpenseFormInputs();
       sendDataToServer();
 }
 /***************************************************************************************************
  * clearAddStudentForm - clears out the form values based on inputIds variable
  */
-function clearAddStudentFormInputs() {
+function clearAddExpenseFormInputs() {
       $("#itemName").val("");
       $('select').prop('selectedIndex', 0);
       $("#transactionDate").val("");
@@ -230,7 +230,7 @@ function renderItemOnDom() {
                         text: ` ${lastObjInitemArray.transactionDate}`
                   }));
                   $('.delete-body .modal-amount-spent').empty().append($("<label>", { text: "Amount Spent:" }), $("<span>", {
-                        text: ` ${lastObjInitemArray.amountSpent}`
+                        text: ` $${lastObjInitemArray.amountSpent}`
                   }));
                   (function () {
                         $('.modal-delete-btn').off("click").click(function () {
@@ -243,7 +243,7 @@ function renderItemOnDom() {
                   $('.modal-delete').modal('show');
             })
       })();
-      var btnContainer = $("<td>").append(updateBtn, deleteBtn);
+      var btnContainer = $("<td>", { class: 'btnContainer' }).append(updateBtn, deleteBtn);
       $(".item-list tbody").append(newTr);
       newTr.append(itemNameOuput, studentCourseOutput, transactionDateOutput, amountSpentOutput, btnContainer);
 }
@@ -279,7 +279,8 @@ function calculateExpenseTotal() {
  * @returns {undefined} none
  */
 function renderExpenseTotal() {
-      $(".currentMonthExpense").text(calculateExpenseTotal());
+      var currentMonthExpense = calculateExpenseTotal();
+      $(".currentMonthExpense").text(`$${currentMonthExpense}`);
 }
 
 function getDataFromServer() {
@@ -424,32 +425,37 @@ function handleFocusInForForm() {
 }
 
 function showWarningMessageForitemName() {
-      $(".glyphicon-tag").closest('.input-group-addon').addClass('backgroundAndTextRed borderRed');
-      $("#itemName").addClass('borderRed');
+      // $(".glyphicon-tag").closest('.input-group-addon').addClass('backgroundAndTextRed borderRed');
+      $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').addClass('has-error');
+      // $("#itemName").addClass('borderRed');
       $("#itemName").closest('.form-group').next('.warningText').removeClass('hidden');
 }
 
 function showWarningMessageForStudentCourse() {
-      $(".glyphicon-list-alt").closest('.input-group-addon').addClass('backgroundAndTextRed borderRed');
-      $("#expenseCategory").addClass('borderRed');
+      // $(".glyphicon-list-alt").closest('.input-group-addon').addClass('backgroundAndTextRed borderRed');
+      $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').addClass('has-error');
+      // $("#expenseCategory").addClass('borderRed');
       $("#expenseCategory").closest('.form-group').next('.warningText').removeClass('hidden');
 }
 
 function showWarningMessageForTransactionDate() {
-      $(".glyphicon-calendar").closest('.input-group-addon').addClass('backgroundAndTextRed borderRed');
-      $("#transactionDate").addClass('borderRed');
+      // $(".glyphicon-calendar").closest('.input-group-addon').addClass('backgroundAndTextRed borderRed');
+      $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').addClass('has-error');
+      // $("#transactionDate").addClass('borderRed');
       $("#transactionDate").closest('.form-group').next('.warningText').removeClass('hidden');
 }
 
 function showWarningMessageForamountSpent() {
-      $(".glyphicon-usd").closest('.input-group-addon').addClass('backgroundAndTextRed borderRed');
-      $("#amountSpent").addClass('borderRed');
+      // $(".glyphicon-usd").closest('.input-group-addon').addClass('backgroundAndTextRed borderRed');
+      $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').addClass('has-error');
+      // $("#amountSpent").addClass('borderRed');
       $("#amountSpent").closest('.form-group').next('.warningText').removeClass('hidden');
 }
 
 function clearWarningMessageForitemName() {
-      $(".glyphicon-tag").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
-      $("#itemName").removeClass('borderRed');
+      // $(".glyphicon-tag").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
+      $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
+      // $("#itemName").removeClass('borderRed');
       $("#itemName").closest('.form-group').next('.warningText').addClass('hidden');
       if (!$(".add-item-error").hasClass('hidden')) {
             $(".add-item-error").addClass('hidden');
@@ -457,8 +463,9 @@ function clearWarningMessageForitemName() {
 }
 
 function clearWarningMessageForStudentCourse() {
-      $(".glyphicon-list-alt").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
-      $("#expenseCategory").removeClass('borderRed');
+      // $(".glyphicon-list-alt").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
+      $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
+      // $("#expenseCategory").removeClass('borderRed');
       $("#expenseCategory").closest('.form-group').next('.warningText').addClass('hidden');
       if (!$(".add-item-error").hasClass('hidden')) {
             $(".add-item-error").addClass('hidden');
@@ -466,8 +473,9 @@ function clearWarningMessageForStudentCourse() {
 }
 
 function clearWarningMessageForTransactionDate() {
-      $(".glyphicon-calendar").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
-      $("#transactionDate").removeClass('borderRed');
+      // $(".glyphicon-calendar").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
+      $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
+      // $("#transactionDate").removeClass('borderRed');
       $("#transactionDate").closest('.form-group').next('.warningText').addClass('hidden');
       if (!$(".add-item-error").hasClass('hidden')) {
             $(".add-item-error").addClass('hidden');
@@ -475,8 +483,9 @@ function clearWarningMessageForTransactionDate() {
 }
 
 function clearWarningMessageForamountSpent() {
-      $(".glyphicon-usd").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
-      $("#amountSpent").removeClass('borderRed');
+      // $(".glyphicon-usd").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
+      $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
+      // $("#amountSpent").removeClass('borderRed');
       $("#amountSpent").closest('.form-group').next('.warningText').addClass('hidden');
       if (!$(".add-item-error").hasClass('hidden')) {
             $(".add-item-error").addClass('hidden');

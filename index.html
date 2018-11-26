@@ -15,24 +15,28 @@
             -webkit-appearance: none;   
         }
         /* input::-webkit-datetime-edit{ color: #999; } */
-        #transactionDate:required:valid{ color: #000; }
-        #transactionDate:required:invalid{ color: #999; }
-        select:required:invalid {
-        color: #999;
+        #transactionDate:required:valid, #transactionDateUpdate:required:valid { 
+            color: #000; 
+        }
+        #transactionDate:required:invalid, #transactionDateUpdate:required:invalid { 
+            color: #999; 
+        }
+            select:required:invalid {
+            color: #999;
         }
         option {
-        color: black;
+            color: black;
         }
         tr:hover{
             background-color: white;
         }
-        .borderRed {
+        /* .borderRed {
             border: rgb(238, 159, 159) 1px solid;
         }
         .backgroundAndTextRed {
             color: #a94442;
             background-color: rgb(238, 159, 159);
-        }
+        } */
         .warningText, .add-item-error {
             color:#cc4240;
         }
@@ -72,10 +76,10 @@
         .add-expense-header{
             color: rgb(0, 115, 255);
         }
-        /* @media only screen and (max-width:949px) {
-            body {
-                background-color: pink;
-            }
+        /* .btnContainer {
+            display: flex;
+            justify-content: center;
+            border-top: 0;
         } */
     </style>
 </head>
@@ -202,7 +206,7 @@
                     <h4 class="modal-title">Update this expense</h4>
                 </div>
                 <div class="modal-body update-body">
-                    <div class="form-group input-group">
+                    <div class="form-group input-group input-group-modal">
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-tag"></span>
                         </span>
@@ -211,7 +215,7 @@
                     <!-- <div class="form-group input-group warningText hidden">
                         <span>Must contain at least 2 letters</span>
                     </div> -->
-                    <div class="form-group input-group">
+                    <div class="form-group input-group input-group-modal">
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-list-alt"></span>
                         </span>
@@ -224,17 +228,17 @@
                     <!-- <div class="form-group input-group warningText hidden">
                         <span>Expense category required</span>
                     </div> -->
-                    <div class="form-group input-group">
+                    <div class="form-group input-group input-group-modal">
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
                         </span>
                         <input type="date" class="form-control" name="transactionDate" id="transactionDateUpdate"
-                            placeholder="Transaction Date">
+                            placeholder="Transaction Date" value="" required>
                     </div>
                     <!-- <div class="form-group input-group warningText hidden">
                         <span>Please pick a date</span>
                     </div> -->
-                    <div class="form-group input-group">
+                    <div class="form-group input-group input-group-modal">
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-usd"></span>
                         </span>
