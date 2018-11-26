@@ -20,6 +20,7 @@ $(document).ready(initializeApp);
  * ];
  */
 var itemArray = [];
+var todayDate = getTodayDate();
 /***************************************************************************************************
  * initializeApp 
  * @params {undefined} none
@@ -27,6 +28,7 @@ var itemArray = [];
  * initializes the application, including adding click handlers and pulling in any data from the server, in later versions
  */
 function initializeApp() {
+      $(".todayDate").text(`Current date: ${todayDate}`);
       getDataFromServer();
       addClickHandlersToElements();
       renderOptionOfCategoriesOnDOM();
@@ -483,4 +485,18 @@ function clearUpdateError() {
       if (!$(".update-item-error").hasClass('hidden')) {
             $(".update-item-error").addClass('hidden');
       }
+}
+
+function getTodayDate() {
+      var today = new Date();
+      var dd = today.getDate();
+      var mm = today.getMonth() + 1; //January is 0!
+      var yyyy = today.getFullYear();
+      if (dd < 10) {
+            dd = '0' + dd
+      }
+      if (mm < 10) {
+            mm = '0' + mm
+      }
+      return `${yyyy}-${mm}-${dd}`;
 }
