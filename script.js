@@ -52,7 +52,7 @@ function addClickHandlersToElements() {
        none
  */
 function handleAddClicked() {
-      addStudent();
+      validateAndAddStudent();
 }
 /***************************************************************************************************
  * handleCancelClicked - Event Handler when user clicks the cancel button, should clear out student form
@@ -73,7 +73,7 @@ function handleCancelClick() {
  * @calls clearAddStudentFormInputs, updateStudentList
  */
 
-function addStudent() {
+function validateAndAddStudent() {
       var ItemVal = {}; //local student object
       ItemVal.itemName = $("#itemName").val();
       ItemVal.expenseCategory = $("#expenseCategory option:selected").val();
@@ -174,34 +174,26 @@ function renderStudentOnDom() {
       });
       (function () {
             updateBtn.click(function () {
-                  var indexOfCurrentStudent = itemArray.indexOf(lastObjInitemArray);
-                  var studentID = lastObjInitemArray.id;
-                  $('.modal-title').text('Update this expense');
-                  // $('.update-body .modal-item-name').empty().append($("<label>", { text: "Item Name:" }), $("<input>", {
-                  //       value: ` ${lastObjInitemArray.itemName}`
-                  // }));
-                  // $('.update-body .modal-expense-category').empty().append($("<label>", { text: "Expense Category:" }), $("<input>", {
-                  //       value: ` ${lastObjInitemArray.expenseCategory}`
-                  // }));
-                  // $('.update-body .modal-transaction-date').empty().append($("<label>", { text: "Transaction Date:" }), $("<input>", {
-                  //       value: ` ${lastObjInitemArray.transactionDate}`
-                  // }));
-                  // $('.update-body .modal-amount-spent').empty().append($("<label>", { text: "Amount Spent:" }), $("<input>", {
-                  //       value: ` ${lastObjInitemArray.amountSpent}`
-                  // }));
                   $('#itemNameUpdate').val(lastObjInitemArray.itemName);
-                  $('#expenseCategoryUpdate option:selected').val(lastObjInitemArray.expenseCategory);
+                  for (var i = 0; i < categories.length; i++) {
+                        if (categories[i] === lastObjInitemArray.expenseCategory) {
+                              $('#expenseCategoryUpdate').prop('selectedIndex', i + 1)
+                        }
+                  }
                   $('#transactionDateUpdate').val(lastObjInitemArray.transactionDate);
                   $('#amountSpentUpdate').val(lastObjInitemArray.amountSpent);
-                  // (function () {
-                  //       $('.modal-delete-btn').click(function () {
-                  //             itemArray.splice(indexOfCurrentStudent, 1);
-                  //             newTr.remove();
-                  //             renderGradeAverage();
-                  //             deleteStudentFromDatabase(studentID);
-                  //             console.log("Item that was deleted:", lastObjInitemArray.itemName);
-                  //       });
-                  // })();
+                  (function () {
+                        $('.modal-update-btn').off("click").click(function () {
+                              var indexOfCurrentStudent = itemArray.indexOf(lastObjInitemArray);
+                              var studentID = lastObjInitemArray.id;
+                              // itemArray.splice(indexOfCurrentStudent, 1);
+                              // newTr.remove();
+                              // renderGradeAverage();
+                              updateDataToServer(studentID);
+                              console.log("Item clicked:", studentID);
+                              // console.log("Item that was updated:", lastObjInitemArray.itemName);
+                        });
+                  })();
                   $('.modal-update').modal('show');
             })
       })();
@@ -212,7 +204,6 @@ function renderStudentOnDom() {
       });
       (function () {
             deleteBtn.click(function () {
-                  $('.modal-title').text('Are you sure you want to delete this expense?');
                   $('.delete-body .modal-item-name').empty().append($("<label>", { text: "Item Name:" }), $("<span>", {
                         text: ` ${lastObjInitemArray.itemName}`
                   }));
@@ -331,6 +322,46 @@ function sendDataToServer() {
             },
             error: function (serverResponse) {
                   $(".add-item-error").removeClass('hidden')
+            }
+      })
+}
+
+function updateDataToServer(idOfStudentToBeUpdated) {
+      var ItemVal = {}; //local item object
+      ItemVal.itemName = $("#itemNameUpdate").val();
+      ItemVal.expenseCategory = $("#expenseCategoryUpdate option:selected").val();
+      ItemVal.transactionDate = $("#transactionDateUpdate").val();
+      ItemVal.amountSpent = $("#amountSpentUpdate").val();
+      $.ajax({
+            dataType: 'JSON',
+            data: {
+                  itemID: idOfStudentToBeUpdated,
+                  itemName: ItemVal.itemName,
+                  expenseCategory: ItemVal.expenseCategory,
+                  transactionDate: ItemVal.transactionDate,
+                  amountSpent: ItemVal.amountSpent,
+            },
+            method: 'POST',
+            url: api_url.update_item_url,
+            success: function (serverResponse) {
+                  console.log("Server response:", serverResponse);
+                  var result = serverResponse;
+                  if (result.success) {
+                        for (var i = 0; i < itemArray.length; i++) {
+                              if (itemArray[i].id === idOfStudentToBeUpdated) {
+                                    itemArray[i].itemName = ItemVal.itemName;
+                                    itemArray[i].expenseCategory = ItemVal.expenseCategory;
+                                    itemArray[i].transactionDate = ItemVal.transactionDate;
+                                    itemArray[i].amountSpent = ItemVal.amountSpent;
+                              }
+                        }
+                  }
+                  $(".item-list tbody").empty();
+                  getDataFromServer();
+            },
+            error: function (serverResponse) {
+                  // $(".add-item-error").removeClass('hidden')
+                  console.log('There was en error trying to update the item. Please try again')
             }
       })
 }
