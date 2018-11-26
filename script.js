@@ -20,7 +20,12 @@ $(document).ready(initializeApp);
  * ];
  */
 var itemArray = [];
+var today = null;
+var dd = null;
+var mm = null;
+var yyyy = null;
 var todayDate = getTodayDate();
+
 /***************************************************************************************************
  * initializeApp 
  * @params {undefined} none
@@ -72,7 +77,7 @@ function handleCancelClick() {
  * addStudent - creates a student objects based on input fields in the form and adds the object to global student array
  * @param {undefined} none
  * @return undefined
- * @calls clearAddStudentFormInputs, updateStudentList
+ * @calls clearAddStudentFormInputs, updateItemList
  */
 
 function validateAndAddStudent() {
@@ -133,7 +138,7 @@ function validateAndAddStudent() {
             return;
       }
       itemArray.push(ItemVal); //push to global student array
-      updateStudentList();
+      updateItemList();
       clearAddStudentFormInputs();
       sendDataToServer();
 }
@@ -147,11 +152,11 @@ function clearAddStudentFormInputs() {
       $("#amountSpent").val("");
 }
 /***************************************************************************************************
- * renderStudentOnDom - take in a student object, create html elements from the values and then append the elements
+ * renderItemOnDom - take in a student object, create html elements from the values and then append the elements
  * into the .student_list tbody
  * @param {object} studentObj a single student object with course, name, and grade inside
  */
-function renderStudentOnDom() {
+function renderItemOnDom() {
       var lastObjInitemArray = itemArray[itemArray.length - 1];
       var newTr = $("<tr>", {
             class: "well"
@@ -196,7 +201,7 @@ function renderStudentOnDom() {
                               var studentID = lastObjInitemArray.id;
                               // itemArray.splice(indexOfCurrentStudent, 1);
                               // newTr.remove();
-                              // renderGradeAverage();
+                              // renderExpenseTotal();
                               updateDataToServer(studentID);
                               console.log("Item clicked:", studentID);
                               // console.log("Item that was updated:", lastObjInitemArray.itemName);
@@ -244,40 +249,37 @@ function renderStudentOnDom() {
 }
 
 /***************************************************************************************************
- * updateStudentList - centralized function to update the average and call student list update
+ * updateItemList - centralized function to update the average and call student list update
  * @param students {array} the array of student objects
  * @returns {undefined} none
- * @calls renderStudentOnDom, calculateGradeAverage, renderGradeAverage
+ * @calls renderItemOnDom, calculateExpenseTotal, renderExpenseTotal
  */
-function updateStudentList() {
-      renderStudentOnDom();
-      calculateGradeAverage();
-      renderGradeAverage();
+function updateItemList() {
+      renderItemOnDom();
+      calculateExpenseTotal();
+      renderExpenseTotal();
 }
 /***************************************************************************************************
- * calculateGradeAverage - loop through the global student array and calculate average grade and return that value
+ * calculateExpenseTotal - loop through the global student array and calculate average grade and return that value
  * @param: {array} students  the array of student objects
  * @returns {number}
  */
-function calculateGradeAverage() {
-      var totalGrade = 0;
-      var gradeAverage = 0;
+function calculateExpenseTotal() {
+      var totalExpense = 0;
       for (var itemArrayIndex = 0; itemArrayIndex < itemArray.length; itemArrayIndex++) {
-            totalGrade += parseInt(itemArray[itemArrayIndex].grade);
+            if (itemArray[itemArrayIndex].transactionDate.substring(0, 4) == yyyy && itemArray[0].transactionDate.substring(5, 7) == mm) {
+                  totalExpense += parseInt(itemArray[itemArrayIndex].amountSpent);
+            }
       };
-      gradeAverage = totalGrade / (itemArray.length);
-      if (isNaN(gradeAverage)) {
-            gradeAverage = 0;
-      }
-      return gradeAverage;
+      return totalExpense;
 }
 /***************************************************************************************************
- * renderGradeAverage - updates the on-page grade average
+ * renderExpenseTotal - updates the on-page grade average
  * @param: {number} average    the grade average
  * @returns {undefined} none
  */
-function renderGradeAverage() {
-      $(".avgGrade").text(Math.round(calculateGradeAverage()));
+function renderExpenseTotal() {
+      $(".currentMonthExpense").text(calculateExpenseTotal());
 }
 
 function getDataFromServer() {
@@ -291,14 +293,14 @@ function getDataFromServer() {
                   if (result.success) {
                         for (var i = 0; i < result.data.length; i++) {
                               itemArray.push(result.data[i]);
-                              updateStudentList();
+                              updateItemList();
                         };
                   };
             }
       });
 }
 
-var categories = ['Grocery', 'Home Repairs', 'Mortgage/Rent', 'Clothes', 'Electronics', 'Home Appliances', 'Furniture', 'Entertainment', 'Dining Out']
+var categories = ['Grocery', 'Home Repairs', 'Mortgage/Rent', 'Beauty', 'Clothes', 'Electronics', 'Home Appliances', 'Home Goods', 'Furniture', 'Entertainment', 'Dining Out', 'Other']
 
 function renderOptionOfCategoriesOnDOM() {
       for (var i = 0; i < categories.length; i++) {
@@ -389,7 +391,7 @@ function deleteStudentFromDatabase(idOfStudentToBeDeleted, indexOfCurrentStudent
                   if (result.success) {
                         itemArray.splice(indexOfCurrentStudent, 1);
                         newTr.remove();
-                        renderGradeAverage();
+                        renderExpenseTotal();
                         $(".modal-delete").modal('hide');
                   } else {
                         $(".delete-item-error").removeClass('hidden');
@@ -488,10 +490,10 @@ function clearUpdateError() {
 }
 
 function getTodayDate() {
-      var today = new Date();
-      var dd = today.getDate();
-      var mm = today.getMonth() + 1; //January is 0!
-      var yyyy = today.getFullYear();
+      today = new Date();
+      dd = today.getDate();
+      mm = today.getMonth() + 1; //January is 0!
+      yyyy = today.getFullYear();
       if (dd < 10) {
             dd = '0' + dd
       }
