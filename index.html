@@ -14,24 +14,23 @@
         select {
             -webkit-appearance: none;   
         }
-        select:required:invalid {
-        color: #999;
+        #transactionDate:required:valid, #transactionDateUpdate:required:valid { 
+            color: #000; 
+        }
+        #transactionDate:required:invalid, #transactionDateUpdate:required:invalid { 
+            color: #999; 
+        }
+            select:required:invalid {
+            color: #999;
         }
         option {
-        color: black;
+            color: black;
         }
         tr:hover{
             background-color: white;
         }
-        .borderRed {
-            border: rgb(238, 159, 159) 1px solid;
-        }
-        .backgroundAndTextRed {
-            color: #a94442;
-            background-color: rgb(238, 159, 159);
-        }
-        .warningText, .add-item-error {
-            color:#cc4240;
+        .add-item-error {
+            color: red;
         }
         .page-header {
             color: rgb(0, 115, 255);
@@ -59,7 +58,7 @@
             color: yellowgreen;
             text-align: center;
         }
-        #deleteModal .modal-dialog .modal-content .modal-header {
+        #deleteModal .modal-dialog .modal-content .modal-header, .update-item-error, .delete-item-error {
             color: red;
             text-align: center;
         }
@@ -69,11 +68,63 @@
         .add-expense-header{
             color: rgb(0, 115, 255);
         }
-        /* @media only screen and (max-width:949px) {
-            body {
-                background-color: pink;
+        .alert-danger, .alert-success {
+            width: -webkit-fill-available;
+        }
+        .glyphicon-remove-circle, .glyphicon-ok-circle {
+            margin-right: 1%;
+        }
+        @media only screen and (max-width: 1180px) {
+            .update-btn-w-text, .delete-btn-w-text{
+                display: none
             }
-        } */
+        }
+        @media only screen and (min-width: 427px) {
+            body {
+                font-size: 16px;
+            }
+        }
+        @media only screen and (min-width: 597px) {
+            body {
+                font-size: 16px;
+            }
+        }
+        @media only screen and (min-width: 1085.56px) {
+            body {
+                font-size: 16px;
+            }
+        }
+        @media only screen and (min-width: 1174.44px) {
+            body {
+                font-size: 12px;
+            }
+        }
+        @media only screen and (min-width: 1181.44px) {
+            body {
+                font-size: 13px;
+            }
+        }
+        @media only screen and (min-width: 1151px) {
+            body {
+                font-size: 14px;
+            }
+        }
+        @media only screen and (min-width: 1164px) {
+            body {
+                font-size: 13px;
+            }
+        }
+        @media only screen and (min-width: 1562px) {
+            body {
+                font-size: 14px;
+            }
+        }
+        @media only screen and (min-width: 1181.01px){
+            .glyphicon-pencil, .glyphicon-trash {
+                display: none 
+            }
+        }
+
     </style>
 </head>
 
@@ -83,48 +134,68 @@
             <!-- only show this element when there isnt on mobile -->
             <h1 class="hidden-xs hidden-sm page-header">My Expense Diary
                 <small class="pull-right text-secondary">Current Month Expense :
-                    <span class="label label-default avgGrade">0</span>
+                    <span class="label label-default currentMonthExpense">0</span>
                 </small>
             </h1>
             <!-- only show this element when the user gets to a mobile version -->
             <h3 class="col-xs-11 page-header hidden-lg hidden-md">My Expense Diary
                 <small class="pull-right text-secondary">Current Month Expense :
-                    <span class="label label-default avgGrade">0</span>
+                    <span class="label label-default currentMonthExpense">0</span>
                 </small>
             </h3>
         </div>
-        <div class="student-add-form container pull-right col-lg-4 col-md-4 col-sm-4 col-xs-12">
+        <div class="student-add-form container pull-right col-lg-3 col-md-4 col-sm-12 col-xs-12">
             <h4 class="add-expense-header">Add Expense</h4>
             <div class="form-group input-group">
                 <span class="input-group-addon">
                     <span class="glyphicon glyphicon-tag"></span>
                 </span>
                 <input type="text" class="form-control" name="itemName" id="itemName" placeholder="Item Name">
+                <span class="glyphicon glyphicon-remove form-control-feedback hidden"></span>
+                <span class="glyphicon glyphicon-ok form-control-feedback hidden"></span>
             </div>
-            <div class="form-group input-group warningText hidden">
-                <span>Must contain at least 2 letters</span>
+            <div class="form-group input-group warningText alert alert-danger hidden">
+                <span class="glyphicon glyphicon-remove-circle"></span>
+                <span>Item must be 2 to 20 characters long</span>
+            </div>
+            <div class="form-group input-group successText alert alert-success hidden">
+                <span class="glyphicon glyphicon-ok-circle"></span>
+                <span>Item is between 2 to 20 characters long</span>
             </div>
             <div class="form-group input-group">
                 <span class="input-group-addon">
                     <span class="glyphicon glyphicon-list-alt"></span>
                 </span>
-                <!-- <input type="text" class="form-control" name="course" id="course" placeholder="Student Course"> -->
                 <select class="form-control" name="course" id="expenseCategory" required>
                     <option value="" selected disabled>Expense Category</option>
                 </select>
-
+                <span class="glyphicon glyphicon-remove form-control-feedback hidden"></span>
+                <span class="glyphicon glyphicon-ok form-control-feedback hidden"></span>
             </div>
-            <div class="form-group input-group warningText hidden">
+            <div class="form-group input-group warningText alert alert-danger hidden">
+                <span class="glyphicon glyphicon-remove-circle"></span>
                 <span>Expense category required</span>
+            </div>
+            <div class="form-group input-group successText alert alert-success hidden">
+                <span class="glyphicon glyphicon-ok-circle"></span>
+                <span>Expense category is checked</span>
             </div>
             <div class="form-group input-group">
                 <span class="input-group-addon">
                     <span class="glyphicon glyphicon-calendar"></span>
                 </span>
-                <input type="date" class="form-control" name="transactionDate" id="transactionDate" placeholder="Transaction Date">
+                <input type="date" class="form-control transactionDate" name="transactionDate" id="transactionDate"
+                    placeholder="Transaction Date" value="" required>
+                <span class="glyphicon glyphicon-remove form-control-feedback hidden"></span>
+                <span class="glyphicon glyphicon-ok form-control-feedback hidden"></span>
             </div>
-            <div class="form-group input-group warningText hidden">
+            <div class="form-group input-group warningText alert alert-danger hidden">
+                <span class="glyphicon glyphicon-remove-circle"></span>
                 <span>Please pick a date</span>
+            </div>
+            <div class="form-group input-group successText alert alert-success hidden">
+                <span class="glyphicon glyphicon-ok-circle"></span>
+                <span>Date is picked</span>
             </div>
             <div class="form-group input-group">
                 <span class="input-group-addon">
@@ -132,16 +203,22 @@
                 </span>
                 <input type="number" min="0.01" step="0.01" class="form-control" name="amountSpent" id="amountSpent"
                     placeholder="Amount Spent">
+                <span class="glyphicon glyphicon-remove form-control-feedback hidden"></span>
+                <span class="glyphicon glyphicon-ok form-control-feedback hidden"></span>
             </div>
-            <div class="form-group input-group warningText hidden">
+            <div class="form-group input-group warningText alert alert-danger hidden">
+                <span class="glyphicon glyphicon-remove-circle"></span>
                 <span>Must be at least $0.01</span>
+            </div>
+            <div class="form-group input-group successText alert alert-success hidden">
+                <span class="glyphicon glyphicon-ok-circle"></span>
+                <span>Amount spent is entered</span>
             </div>
             <button type="button" class="addItem btn btn-add" onclick="">Add</button>
             <button type="button" class="cancelItem btn btn-default" onclick="">Cancel</button>
-            <!-- <button type="button" class="getData btn btn-primary" onclick="">Get Data From Server</button> -->
             <div class="add-item-error hidden">There was a problem trying to add this expense. Please try again.</div>
         </div>
-        <div class="student-list-container container col-lg-8 col-md-8 col-sm-8 col-xs-12">
+        <div class="student-list-container container col-lg-9 col-md-8 col-sm-12 col-xs-12">
             <table class="item-list table">
                 <thead class="">
                     <tr>
@@ -174,9 +251,11 @@
                     <p class="modal-expense-category"></p>
                     <p class="modal-transaction-date"></p>
                     <p class="modal-amount-spent"></p>
+                    <div class="delete-item-error hidden">There was a problem trying to delete this expense. Please try
+                        again.</div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="modal-delete-btn btn btn-danger" data-dismiss="modal">Delete</button>
+                    <button type="button" class="modal-delete-btn btn btn-danger" data-dismiss="">Delete</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                 </div>
             </div>
@@ -196,16 +275,13 @@
                     <h4 class="modal-title">Update this expense</h4>
                 </div>
                 <div class="modal-body update-body">
-                    <div class="form-group input-group">
+                    <div class="form-group input-group input-group-modal">
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-tag"></span>
                         </span>
                         <input type="text" class="form-control" name="itemName" id="itemNameUpdate" placeholder="Item Name">
                     </div>
-                    <!-- <div class="form-group input-group warningText hidden">
-                        <span>Must contain at least 2 letters</span>
-                    </div> -->
-                    <div class="form-group input-group">
+                    <div class="form-group input-group input-group-modal">
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-list-alt"></span>
                         </span>
@@ -215,32 +291,25 @@
                         </select>
 
                     </div>
-                    <!-- <div class="form-group input-group warningText hidden">
-                        <span>Expense category required</span>
-                    </div> -->
-                    <div class="form-group input-group">
+                    <div class="form-group input-group input-group-modal">
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
                         </span>
                         <input type="date" class="form-control" name="transactionDate" id="transactionDateUpdate"
-                            placeholder="Transaction Date">
+                            placeholder="Transaction Date" value="" required>
                     </div>
-                    <!-- <div class="form-group input-group warningText hidden">
-                        <span>Please pick a date</span>
-                    </div> -->
-                    <div class="form-group input-group">
+                    <div class="form-group input-group input-group-modal">
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-usd"></span>
                         </span>
                         <input type="number" min="0.01" step="0.01" class="form-control" name="amountSpent" id="amountSpentUpdate"
                             placeholder="Amount Spent">
                     </div>
-                    <!-- <div class="form-group input-group warningText hidden">
-                        <span>Must be at least $0.01</span>
-                    </div> -->
+                    <div class="update-item-error hidden">There was a problem trying to update this expense. Please try
+                        again.</div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="modal-update-btn btn btn-update" data-dismiss="modal">Update</button>
+                    <button type="button" class="modal-update-btn btn btn-update" data-dismiss="">Update</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                 </div>
             </div>

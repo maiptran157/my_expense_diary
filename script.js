@@ -20,6 +20,12 @@ $(document).ready(initializeApp);
  * ];
  */
 var itemArray = [];
+var today = null;
+var dd = null;
+var mm = null;
+var yyyy = null;
+var todayDate = getTodayDate();
+
 /***************************************************************************************************
  * initializeApp 
  * @params {undefined} none
@@ -27,6 +33,7 @@ var itemArray = [];
  * initializes the application, including adding click handlers and pulling in any data from the server, in later versions
  */
 function initializeApp() {
+      $(".todayDate").text(`Current date: ${todayDate}`);
       getDataFromServer();
       addClickHandlersToElements();
       renderOptionOfCategoriesOnDOM();
@@ -41,8 +48,13 @@ function initializeApp() {
  */
 function addClickHandlersToElements() {
       $(".addItem").click(handleAddClicked);
+      // $("#itemName, #expenseCategory, #transactionDate, #amountSpent").on("keyup", event => {
+      //       if (event.keyCode === 13) {
+      //             event.preventDefault();
+      //             $(".addItem").click(handleAddClicked);
+      //       }
+      // });
       $(".cancelItem").click(handleCancelClick);
-      // $(".getData").click(getDataFromServer);
 }
 
 /***************************************************************************************************
@@ -58,22 +70,24 @@ function handleAddClicked() {
  * handleCancelClicked - Event Handler when user clicks the cancel button, should clear out student form
  * @param: {undefined} none
  * @returns: {undefined} none
- * @calls: clearAddStudentFormInputs
+ * @calls: clearAddExpenseFormInputs
  */
 function handleCancelClick() {
-      clearAddStudentFormInputs();
+      clearAddExpenseFormInputs();
+      clearSuccessMessage();
       clearWarningMessageForitemName();
-      clearWarningMessageForStudentCourse();
+      clearWarningMessageForItemCategory();
+      clearWarningMessageForTransactionDate();
       clearWarningMessageForamountSpent()
 }
 /***************************************************************************************************
  * addStudent - creates a student objects based on input fields in the form and adds the object to global student array
  * @param {undefined} none
  * @return undefined
- * @calls clearAddStudentFormInputs, updateStudentList
+ * @calls clearAddExpenseFormInputs, updateItemList
  */
 
-function validateAndAddStudent() {
+function validateAndAddStudent(isValidated = false) {
       var ItemVal = {}; //local student object
       ItemVal.itemName = $("#itemName").val();
       ItemVal.expenseCategory = $("#expenseCategory option:selected").val();
@@ -83,70 +97,63 @@ function validateAndAddStudent() {
       var isLetter = /^[a-zA-Z]+$/.test(ItemVal.itemName);
       var isGreaterThan1Char = /[a-z]{2,}/gi.test(ItemVal.itemName);
       var conditionForLetter = (!isLetter && !isGreaterThan1Char)
-      //debugger;
-      if (conditionForLetter && !ItemVal.expenseCategory) {
-            $("#itemName").val("");
-            $('select').prop('selectedIndex', 0)
-            showWarningMessageForitemName();
-            showWarningMessageForStudentCourse();
-            if (!ItemVal.amountSpent || isNaN(ItemVal.amountSpent) || parseInt(ItemVal.amountSpent) < 0 || parseInt(ItemVal.amountSpent) > 100) {
-                  $("#amountSpent").val("");
-                  showWarningMessageForamountSpent();
-            }
-            return;
-      } else if ((conditionForLetter && !ItemVal.amountSpent) || (conditionForLetter && isNaN(ItemVal.amountSpent)) || (conditionForLetter && parseInt(ItemVal.amountSpent) < 0) || (conditionForLetter && parseInt(ItemVal.amountSpent) > 100)) {
-            $("#itemName").val("");
-            $("#amountSpent").val("");
-            showWarningMessageForitemName();
-            showWarningMessageForamountSpent();
-            if (ItemVal.expenseCategory.length < 1) {
-                  $('select').prop('selectedIndex', 0)
-                  showWarningMessageForStudentCourse();
-            }
-            return;
-      } else if ((!ItemVal.expenseCategory && !ItemVal.amountSpent) || (!ItemVal.expenseCategory && isNaN(ItemVal.amountSpent)) || (!ItemVal.expenseCategory && parseInt(ItemVal.amountSpent) < 0) || (!ItemVal.expenseCategory && parseInt(ItemVal.amountSpent) > 100)) {
-            $('select').prop('selectedIndex', 0);
-            $("#amountSpent").val("");
-            showWarningMessageForStudentCourse();
-            showWarningMessageForamountSpent();
-            if (conditionForLetter) {
-                  $("#itemName").val("");
-                  showWarningMessageForitemName();
-            }
-            return;
-      } else if (conditionForLetter) {
-            $("#itemName").val("");
-            showWarningMessageForitemName();
-            return;
-      } else if (!ItemVal.expenseCategory) {
-            $('select').prop('selectedIndex', 0);
-            showWarningMessageForStudentCourse();
-            return;
-      } else if (!ItemVal.amountSpent || isNaN(ItemVal.amountSpent) || parseInt(ItemVal.amountSpent) < 0 || parseInt(ItemVal.amountSpent) > 100) {
-            $("#amountSpent").val("");
-            showWarningMessageForamountSpent();
-            return;
+
+      if (!ItemVal.transactionDate) {
+            showWarningMessageForTransactionDate();
+      } else {
+            showSuccessMessageForTransactionDate();
       }
-      itemArray.push(ItemVal); //push to global student array
-      updateStudentList();
-      clearAddStudentFormInputs();
-      sendDataToServer();
+      if (conditionForLetter || ItemVal.itemName.length > 20) {
+            showWarningMessageForitemName();
+      } else {
+            showSuccessMessageForitemName();
+      }
+      if (!ItemVal.expenseCategory) {
+            showWarningMessageForItemCategory();
+      } else {
+            showSuccessMessageForItemCategory();
+      }
+      if (parseFloat(ItemVal.amountSpent).toFixed(2) < 0.01 || !ItemVal.amountSpent) {
+            showWarningMessageForamountSpent();
+      } else {
+            showSuccessMessageForamountSpent();
+      }
+      if (ItemVal.transactionDate) {
+            if (!conditionForLetter) {
+                  if (ItemVal.itemName.length <= 20) {
+                        if (ItemVal.expenseCategory) {
+                              if (parseFloat(ItemVal.amountSpent).toFixed(2) >= 0.01) {
+                                    if (ItemVal.amountSpent) {
+                                          isValidated = true;
+                                    }
+                              }
+                        }
+                  }
+            }
+      }
+      if (isValidated) {
+            itemArray.push(ItemVal); //push to global item array
+            updateItemList();
+            clearAddExpenseFormInputs();
+            clearSuccessMessage();
+            sendDataToServer();
+      }
 }
 /***************************************************************************************************
  * clearAddStudentForm - clears out the form values based on inputIds variable
  */
-function clearAddStudentFormInputs() {
+function clearAddExpenseFormInputs() {
       $("#itemName").val("");
       $('select').prop('selectedIndex', 0);
       $("#transactionDate").val("");
       $("#amountSpent").val("");
 }
 /***************************************************************************************************
- * renderStudentOnDom - take in a student object, create html elements from the values and then append the elements
+ * renderItemOnDom - take in a student object, create html elements from the values and then append the elements
  * into the .student_list tbody
  * @param {object} studentObj a single student object with course, name, and grade inside
  */
-function renderStudentOnDom() {
+function renderItemOnDom() {
       var lastObjInitemArray = itemArray[itemArray.length - 1];
       var newTr = $("<tr>", {
             class: "well"
@@ -169,107 +176,116 @@ function renderStudentOnDom() {
       });
       var updateBtn = $("<button>", {
             type: "button",
-            class: "updateBtn btn btn-update",
+            class: "updateBtn btn btn-update update-btn-w-text",
             text: "Update"
       });
-      (function () {
-            updateBtn.click(function () {
-                  $('#itemNameUpdate').val(lastObjInitemArray.itemName);
-                  for (var i = 0; i < categories.length; i++) {
-                        if (categories[i] === lastObjInitemArray.expenseCategory) {
-                              $('#expenseCategoryUpdate').prop('selectedIndex', i + 1)
+      var updateBtnGlyphicon = $("<button>", {
+            type: "button",
+            class: "updateBtn btn btn-update glyphicon glyphicon-pencil",
+      });
+      var updateBtnArray = [updateBtn, updateBtnGlyphicon];
+      for (var i = 0; i < updateBtnArray.length; i++) {
+            (function () {
+                  updateBtnArray[i].click(function () {
+                        if (!$('.update-item-error').hasClass('hidden')) {
+                              $('.update-item-error').addClass('hidden')
                         }
-                  }
-                  $('#transactionDateUpdate').val(lastObjInitemArray.transactionDate);
-                  $('#amountSpentUpdate').val(lastObjInitemArray.amountSpent);
-                  (function () {
-                        $('.modal-update-btn').off("click").click(function () {
-                              var indexOfCurrentStudent = itemArray.indexOf(lastObjInitemArray);
-                              var studentID = lastObjInitemArray.id;
-                              // itemArray.splice(indexOfCurrentStudent, 1);
-                              // newTr.remove();
-                              // renderGradeAverage();
-                              updateDataToServer(studentID);
-                              console.log("Item clicked:", studentID);
-                              // console.log("Item that was updated:", lastObjInitemArray.itemName);
-                        });
-                  })();
-                  $('.modal-update').modal('show');
-            })
-      })();
+                        $('#itemNameUpdate').val(lastObjInitemArray.itemName);
+                        for (var i = 0; i < categories.length; i++) {
+                              if (categories[i] === lastObjInitemArray.expenseCategory) {
+                                    $('#expenseCategoryUpdate').prop('selectedIndex', i + 1)
+                              }
+                        }
+                        $('#transactionDateUpdate').val(lastObjInitemArray.transactionDate);
+                        $('#amountSpentUpdate').val(lastObjInitemArray.amountSpent);
+                        (function () {
+                              $('.modal-update-btn').off("click").click(function () {
+                                    var indexOfCurrentStudent = itemArray.indexOf(lastObjInitemArray);
+                                    var studentID = lastObjInitemArray.id;
+                                    updateDataToServer(studentID);
+                              });
+                        })();
+                        $('.modal-update').modal('show');
+                  })
+            })();
+      }
       var deleteBtn = $("<button>", {
             type: "button",
-            class: "deleteBtn btn btn-danger",
+            class: "deleteBtn btn btn-danger delete-btn-w-text",
             text: "Delete"
       });
-      (function () {
-            deleteBtn.click(function () {
-                  $('.delete-body .modal-item-name').empty().append($("<label>", { text: "Item Name:" }), $("<span>", {
-                        text: ` ${lastObjInitemArray.itemName}`
-                  }));
-                  $('.delete-body .modal-expense-category').empty().append($("<label>", { text: "Expense Category:" }), $("<span>", {
-                        text: ` ${lastObjInitemArray.expenseCategory}`
-                  }));
-                  $('.delete-body .modal-transaction-date').empty().append($("<label>", { text: "Transaction Date:" }), $("<span>", {
-                        text: ` ${lastObjInitemArray.transactionDate}`
-                  }));
-                  $('.delete-body .modal-amount-spent').empty().append($("<label>", { text: "Amount Spent:" }), $("<span>", {
-                        text: ` ${lastObjInitemArray.amountSpent}`
-                  }));
-                  (function () {
-                        $('.modal-delete-btn').off("click").click(function () {
-                              var indexOfCurrentStudent = itemArray.indexOf(lastObjInitemArray);
-                              var studentID = lastObjInitemArray.id;
-                              itemArray.splice(indexOfCurrentStudent, 1);
-                              newTr.remove();
-                              renderGradeAverage();
-                              deleteStudentFromDatabase(studentID);
-                              console.log("Item that was deleted:", lastObjInitemArray.itemName);
-                        });
-                  })();
-                  $('.modal-delete').modal('show');
-            })
-      })();
-      var btnContainer = $("<td>").append(updateBtn, deleteBtn);
+      var deleteBtnGlyphicon = $("<button>", {
+            type: "button",
+            class: "deleteBtn btn btn-danger glyphicon glyphicon-trash",
+      });
+      var deleteBtnArray = [deleteBtn, deleteBtnGlyphicon];
+      for (var i = 0; i < deleteBtnArray.length; i++) {
+            (function () {
+                  deleteBtnArray[i].click(function () {
+                        if (!$('.delete-item-error').hasClass('hidden')) {
+                              $('.delete-item-error').addClass('hidden')
+                        }
+                        $('.delete-body .modal-item-name').empty().append($("<label>", { text: "Item Name:" }), $("<span>", {
+                              text: ` ${lastObjInitemArray.itemName}`
+                        }));
+                        $('.delete-body .modal-expense-category').empty().append($("<label>", { text: "Expense Category:" }), $("<span>", {
+                              text: ` ${lastObjInitemArray.expenseCategory}`
+                        }));
+                        $('.delete-body .modal-transaction-date').empty().append($("<label>", { text: "Transaction Date:" }), $("<span>", {
+                              text: ` ${lastObjInitemArray.transactionDate}`
+                        }));
+                        $('.delete-body .modal-amount-spent').empty().append($("<label>", { text: "Amount Spent:" }), $("<span>", {
+                              text: ` $${lastObjInitemArray.amountSpent}`
+                        }));
+                        (function () {
+                              $('.modal-delete-btn').off("click").click(function () {
+                                    var indexOfCurrentStudent = itemArray.indexOf(lastObjInitemArray);
+                                    var studentID = lastObjInitemArray.id;
+                                    deleteStudentFromDatabase(studentID, indexOfCurrentStudent, newTr);
+                              });
+                        })();
+                        $('.modal-delete').modal('show');
+                  })
+            })();
+      }
+      var btnContainer = $("<td>", { class: 'btnContainer' }).append(updateBtn, updateBtnGlyphicon, deleteBtn, deleteBtnGlyphicon);
       $(".item-list tbody").append(newTr);
       newTr.append(itemNameOuput, studentCourseOutput, transactionDateOutput, amountSpentOutput, btnContainer);
 }
 
 /***************************************************************************************************
- * updateStudentList - centralized function to update the average and call student list update
+ * updateItemList - centralized function to update the average and call student list update
  * @param students {array} the array of student objects
  * @returns {undefined} none
- * @calls renderStudentOnDom, calculateGradeAverage, renderGradeAverage
+ * @calls renderItemOnDom, calculateExpenseTotal, renderExpenseTotal
  */
-function updateStudentList() {
-      renderStudentOnDom();
-      calculateGradeAverage();
-      renderGradeAverage();
+function updateItemList() {
+      renderItemOnDom();
+      calculateExpenseTotal();
+      renderExpenseTotal();
 }
 /***************************************************************************************************
- * calculateGradeAverage - loop through the global student array and calculate average grade and return that value
+ * calculateExpenseTotal - loop through the global student array and calculate average grade and return that value
  * @param: {array} students  the array of student objects
  * @returns {number}
  */
-function calculateGradeAverage() {
-      var totalGrade = 0;
-      var gradeAverage = 0;
+function calculateExpenseTotal() {
+      var totalExpense = 0;
       for (var itemArrayIndex = 0; itemArrayIndex < itemArray.length; itemArrayIndex++) {
-            totalGrade += parseInt(itemArray[itemArrayIndex].grade);
+            if (itemArray[itemArrayIndex].transactionDate.substring(0, 4) == yyyy && itemArray[0].transactionDate.substring(5, 7) == mm) {
+                  totalExpense += parseInt(itemArray[itemArrayIndex].amountSpent);
+            }
       };
-      gradeAverage = totalGrade / (itemArray.length);
-      if (isNaN(gradeAverage)) {
-            gradeAverage = 0;
-      }
-      return gradeAverage;
+      return totalExpense;
 }
 /***************************************************************************************************
- * renderGradeAverage - updates the on-page grade average
+ * renderExpenseTotal - updates the on-page grade average
  * @param: {number} average    the grade average
  * @returns {undefined} none
  */
-function renderGradeAverage() {
-      $(".avgGrade").text(Math.round(calculateGradeAverage()));
+function renderExpenseTotal() {
+      var currentMonthExpense = calculateExpenseTotal();
+      $(".currentMonthExpense").text(`$${currentMonthExpense}`);
 }
 
 function getDataFromServer() {
@@ -283,14 +299,14 @@ function getDataFromServer() {
                   if (result.success) {
                         for (var i = 0; i < result.data.length; i++) {
                               itemArray.push(result.data[i]);
-                              updateStudentList();
+                              updateItemList();
                         };
                   };
             }
       });
 }
 
-var categories = ['Grocery', 'Home Repairs', 'Mortgage/Rent', 'Clothes', 'Electronics', 'Home Appliances', 'Furniture', 'Entertainment', 'Dining Out']
+var categories = ['Grocery', 'Home Repairs', 'Mortgage/Rent', 'Beauty', 'Clothes', 'Electronics', 'Home Appliances', 'Home Goods', 'Furniture', 'Entertainment', 'Dining Out', 'Other']
 
 function renderOptionOfCategoriesOnDOM() {
       for (var i = 0; i < categories.length; i++) {
@@ -344,7 +360,6 @@ function updateDataToServer(idOfStudentToBeUpdated) {
             method: 'POST',
             url: api_url.update_item_url,
             success: function (serverResponse) {
-                  console.log("Server response:", serverResponse);
                   var result = serverResponse;
                   if (result.success) {
                         for (var i = 0; i < itemArray.length; i++) {
@@ -355,18 +370,21 @@ function updateDataToServer(idOfStudentToBeUpdated) {
                                     itemArray[i].amountSpent = ItemVal.amountSpent;
                               }
                         }
+                        $(".modal-update").modal('hide');
+                        $(".item-list tbody").empty();
+                        getDataFromServer();
+                        renderExpenseTotal();
+                  } else {
+                        $(".update-item-error").removeClass('hidden');
                   }
-                  $(".item-list tbody").empty();
-                  getDataFromServer();
             },
             error: function (serverResponse) {
-                  // $(".add-item-error").removeClass('hidden')
-                  console.log('There was en error trying to update the item. Please try again')
+                  $(".update-item-error").removeClass('hidden');
             }
       })
 }
 
-function deleteStudentFromDatabase(idOfStudentToBeDeleted) {
+function deleteStudentFromDatabase(idOfStudentToBeDeleted, indexOfCurrentStudent, newTr) {
       var studentID = idOfStudentToBeDeleted;
       $.ajax({
             method: 'POST',
@@ -377,9 +395,17 @@ function deleteStudentFromDatabase(idOfStudentToBeDeleted) {
             success: function (serverResponse) {
                   var result = serverResponse;
                   if (result.success) {
-                        console.log(result.message);
+                        itemArray.splice(indexOfCurrentStudent, 1);
+                        newTr.remove();
+                        renderExpenseTotal();
+                        $(".modal-delete").modal('hide');
+                  } else {
+                        $(".delete-item-error").removeClass('hidden');
                   };
             },
+            error: function () {
+                  $(".delete-item-error").removeClass('hidden');
+            }
       });
 }
 
@@ -388,56 +414,162 @@ function deleteStudentFromDatabase(idOfStudentToBeDeleted) {
 function handleFocusInForForm() {
       $("#itemName").focusin(function () {
             clearWarningMessageForitemName();
-      })
+            clearSuccessMessage();
+      });
       $("#expenseCategory").focusin(function () {
-            clearWarningMessageForStudentCourse();
+            clearWarningMessageForItemCategory();
+            clearSuccessMessage();
+      });
+      $("#transactionDate").focusin(function () {
+            clearWarningMessageForTransactionDate();
+            clearSuccessMessage();
       })
       $("#amountSpent").focusin(function () {
             clearWarningMessageForamountSpent();
-      })
+            clearSuccessMessage();
+      });
+      $("#itemNameUpdate, #expenseCategoryUpdate, #transactionDateUpdate, #amountSpentUpdate").focusin(function () {
+            clearUpdateError();
+      });
 }
 
 function showWarningMessageForitemName() {
-      $(".glyphicon-tag").closest('.input-group-addon').addClass('backgroundAndTextRed borderRed');
-      $("#itemName").addClass('borderRed');
+      $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').addClass('has-error');
       $("#itemName").closest('.form-group').next('.warningText').removeClass('hidden');
+      $("#itemName").next('.glyphicon-remove').removeClass('hidden');
 }
 
-function showWarningMessageForStudentCourse() {
-      $(".glyphicon-list-alt").closest('.input-group-addon').addClass('backgroundAndTextRed borderRed');
-      $("#expenseCategory").addClass('borderRed');
+function showWarningMessageForItemCategory() {
+      $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').addClass('has-error');
       $("#expenseCategory").closest('.form-group').next('.warningText').removeClass('hidden');
+      $("#expenseCategory").next('.glyphicon-remove').removeClass('hidden');
+}
+
+function showWarningMessageForTransactionDate() {
+      $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').addClass('has-error');
+      $("#transactionDate").closest('.form-group').next('.warningText').removeClass('hidden');
+      $("#transactionDate").next('.glyphicon-remove').removeClass('hidden');
 }
 
 function showWarningMessageForamountSpent() {
-      $(".glyphicon-usd").closest('.input-group-addon').addClass('backgroundAndTextRed borderRed');
-      $("#amountSpent").addClass('borderRed');
+      $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').addClass('has-error');
       $("#amountSpent").closest('.form-group').next('.warningText').removeClass('hidden');
+      $("#amountSpent").next('.glyphicon-remove').removeClass('hidden');
+}
+
+function showSuccessMessageForitemName() {
+      $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').addClass('has-success');
+      $("#itemName").closest('.form-group').next('.warningText').next('.successText').removeClass('hidden');
+      $("#itemName").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
+}
+
+function showSuccessMessageForItemCategory() {
+      $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').addClass('has-success');
+      $("#expenseCategory").closest('.form-group').next('.warningText').next('.successText').removeClass('hidden');
+      $("#expenseCategory").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
+}
+
+function showSuccessMessageForTransactionDate() {
+      $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').addClass('has-success');
+      $("#transactionDate").closest('.form-group').next('.warningText').next('.successText').removeClass('hidden');
+      $("#transactionDate").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
+}
+
+function showSuccessMessageForamountSpent() {
+      $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').addClass('has-success');
+      $("#amountSpent").closest('.form-group').next('.warningText').next('.successText').removeClass('hidden');
+      $("#amountSpent").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
 }
 
 function clearWarningMessageForitemName() {
-      $(".glyphicon-tag").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
-      $("#itemName").removeClass('borderRed');
+      $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
       $("#itemName").closest('.form-group').next('.warningText').addClass('hidden');
-      if (!$(".add-item-error").hasClass('hidden')) {
-            $(".add-item-error").addClass('hidden');
-      }
+      $("#itemName").next('.glyphicon-remove').addClass('hidden');
+      clearAddError()
 }
 
-function clearWarningMessageForStudentCourse() {
-      $(".glyphicon-list-alt").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
-      $("#expenseCategory").removeClass('borderRed');
+function clearWarningMessageForItemCategory() {
+      $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
       $("#expenseCategory").closest('.form-group').next('.warningText').addClass('hidden');
-      if (!$(".add-item-error").hasClass('hidden')) {
-            $(".add-item-error").addClass('hidden');
-      }
+      $("#expenseCategory").next('.glyphicon-remove').addClass('hidden');
+      clearAddError()
+}
+
+function clearWarningMessageForTransactionDate() {
+      $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
+      $("#transactionDate").closest('.form-group').next('.warningText').addClass('hidden');
+      $("#transactionDate").next('.glyphicon-remove').addClass('hidden');
+      clearAddError()
 }
 
 function clearWarningMessageForamountSpent() {
-      $(".glyphicon-usd").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
-      $("#amountSpent").removeClass('borderRed');
+      $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
       $("#amountSpent").closest('.form-group').next('.warningText').addClass('hidden');
+      $("#amountSpent").next('.glyphicon-remove').addClass('hidden');
+      clearAddError()
+}
+
+// function clearSuccessMessageForitemName() {
+//       $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+//       $("#itemName").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+//       $("#itemName").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+// }
+
+// function clearSuccessMessageForItemCategory() {
+//       $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+//       $("#expenseCategory").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+//       $("#expenseCategory").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+// }
+
+// function clearSuccessMessageForTransactionDate() {
+//       $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+//       $("#transactionDate").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+//       $("#transactionDate").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+// }
+
+// function clearSuccessMessageForamountSpent() {
+//       $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+//       $("#amountSpent").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+//       $("#amountSpent").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+// }
+
+function clearSuccessMessage() {
+      $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+      $("#itemName").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+      $("#itemName").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+      $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+      $("#expenseCategory").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+      $("#expenseCategory").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+      $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+      $("#transactionDate").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+      $("#transactionDate").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+      $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+      $("#amountSpent").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+      $("#amountSpent").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+}
+
+function clearUpdateError() {
+      if (!$(".update-item-error").hasClass('hidden')) {
+            $(".update-item-error").addClass('hidden');
+      }
+}
+
+function clearAddError() {
       if (!$(".add-item-error").hasClass('hidden')) {
             $(".add-item-error").addClass('hidden');
       }
+}
+
+function getTodayDate() {
+      today = new Date();
+      dd = today.getDate();
+      mm = today.getMonth() + 1; //January is 0!
+      yyyy = today.getFullYear();
+      if (dd < 10) {
+            dd = '0' + dd
+      }
+      if (mm < 10) {
+            mm = '0' + mm
+      }
+      return `${yyyy}-${mm}-${dd}`;
 }
