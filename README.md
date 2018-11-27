@@ -5,6 +5,7 @@ My Expense Diary is a Content Management System (CMS) web application where you 
 Technologies used include HTML5, CSS3, JavaScript, jQuery, and Bootstrap.
 
 ## Getting Started
+> - Clone the following repository `https://github.com/maiptran157/my_expense_diary.git`
 > - Are you on your master branch?
     - **Yes** - continue to "Pull Latest Changes"
     - **I dont know** Run the command below
@@ -15,7 +16,6 @@ Technologies used include HTML5, CSS3, JavaScript, jQuery, and Bootstrap.
         - `git pull origin master` - **Now continue with the next steps**
 > - Create a feature branch
     - `git checkout -b [YOUR BRANCH NAME]`
-> - Work on the scope defined <a href="https://github.com/maiptran157/my_expense_diary.git">Below</a>
 > - Add files to git
     - `git add .`
 > - Commit files (Group files together)
@@ -24,4 +24,4 @@ Technologies used include HTML5, CSS3, JavaScript, jQuery, and Bootstrap.
 > - Send to gitHub (Push)
     - `git push origin [YOUR BRANCH NAME]`
 > - Create pull request
-    - Pull request should be made from v0.1 to **your repository's/teams** master branch
+    - Pull request should be made from [YOUR BRANCH NAME] to **your repository's/teams** master branch
