@@ -48,8 +48,13 @@ function initializeApp() {
  */
 function addClickHandlersToElements() {
       $(".addItem").click(handleAddClicked);
+      // $("#itemName, #expenseCategory, #transactionDate, #amountSpent").on("keyup", event => {
+      //       if (event.keyCode === 13) {
+      //             event.preventDefault();
+      //             $(".addItem").click(handleAddClicked);
+      //       }
+      // });
       $(".cancelItem").click(handleCancelClick);
-      // $(".getData").click(getDataFromServer);
 }
 
 /***************************************************************************************************
@@ -69,8 +74,10 @@ function handleAddClicked() {
  */
 function handleCancelClick() {
       clearAddExpenseFormInputs();
+      clearSuccessMessage();
       clearWarningMessageForitemName();
-      clearWarningMessageForStudentCourse();
+      clearWarningMessageForItemCategory();
+      clearWarningMessageForTransactionDate();
       clearWarningMessageForamountSpent()
 }
 /***************************************************************************************************
@@ -80,7 +87,7 @@ function handleCancelClick() {
  * @calls clearAddExpenseFormInputs, updateItemList
  */
 
-function validateAndAddStudent() {
+function validateAndAddStudent(isValidated = false) {
       var ItemVal = {}; //local student object
       ItemVal.itemName = $("#itemName").val();
       ItemVal.expenseCategory = $("#expenseCategory option:selected").val();
@@ -90,57 +97,47 @@ function validateAndAddStudent() {
       var isLetter = /^[a-zA-Z]+$/.test(ItemVal.itemName);
       var isGreaterThan1Char = /[a-z]{2,}/gi.test(ItemVal.itemName);
       var conditionForLetter = (!isLetter && !isGreaterThan1Char)
-      //debugger;
+
       if (!ItemVal.transactionDate) {
             showWarningMessageForTransactionDate();
+      } else {
+            showSuccessMessageForTransactionDate();
       }
-      if (conditionForLetter && !ItemVal.expenseCategory) {
-            $("#itemName").val("");
-            $('select').prop('selectedIndex', 0)
+      if (conditionForLetter || ItemVal.itemName.length > 20) {
             showWarningMessageForitemName();
-            showWarningMessageForStudentCourse();
-            if (!ItemVal.amountSpent || isNaN(ItemVal.amountSpent) || parseInt(ItemVal.amountSpent) < 0) {
-                  $("#amountSpent").val("");
-                  showWarningMessageForamountSpent();
-            }
-            return;
-      } else if ((conditionForLetter && !ItemVal.amountSpent) || (conditionForLetter && isNaN(ItemVal.amountSpent)) || (conditionForLetter && parseInt(ItemVal.amountSpent) < 0) || (conditionForLetter)) {
-            $("#itemName").val("");
-            $("#amountSpent").val("");
-            showWarningMessageForitemName();
-            showWarningMessageForamountSpent();
-            if (ItemVal.expenseCategory.length < 1) {
-                  $('select').prop('selectedIndex', 0)
-                  showWarningMessageForStudentCourse();
-            }
-            return;
-      } else if ((!ItemVal.expenseCategory && !ItemVal.amountSpent) || (!ItemVal.expenseCategory && isNaN(ItemVal.amountSpent)) || (!ItemVal.expenseCategory && parseInt(ItemVal.amountSpent) < 0) || (!ItemVal.expenseCategory)) {
-            $('select').prop('selectedIndex', 0);
-            $("#amountSpent").val("");
-            showWarningMessageForStudentCourse();
-            showWarningMessageForamountSpent();
-            if (conditionForLetter) {
-                  $("#itemName").val("");
-                  showWarningMessageForitemName();
-            }
-            return;
-      } else if (conditionForLetter) {
-            $("#itemName").val("");
-            showWarningMessageForitemName();
-            return;
-      } else if (!ItemVal.expenseCategory) {
-            $('select').prop('selectedIndex', 0);
-            showWarningMessageForStudentCourse();
-            return;
-      } else if (!ItemVal.amountSpent || isNaN(ItemVal.amountSpent) || parseInt(ItemVal.amountSpent) < 0) {
-            $("#amountSpent").val("");
-            showWarningMessageForamountSpent();
-            return;
+      } else {
+            showSuccessMessageForitemName();
       }
-      itemArray.push(ItemVal); //push to global item array
-      updateItemList();
-      clearAddExpenseFormInputs();
-      sendDataToServer();
+      if (!ItemVal.expenseCategory) {
+            showWarningMessageForItemCategory();
+      } else {
+            showSuccessMessageForItemCategory();
+      }
+      if (parseFloat(ItemVal.amountSpent).toFixed(2) < 0.01 || !ItemVal.amountSpent) {
+            showWarningMessageForamountSpent();
+      } else {
+            showSuccessMessageForamountSpent();
+      }
+      if (ItemVal.transactionDate) {
+            if (!conditionForLetter) {
+                  if (ItemVal.itemName.length <= 20) {
+                        if (ItemVal.expenseCategory) {
+                              if (parseFloat(ItemVal.amountSpent).toFixed(2) >= 0.01) {
+                                    if (ItemVal.amountSpent) {
+                                          isValidated = true;
+                                    }
+                              }
+                        }
+                  }
+            }
+      }
+      if (isValidated) {
+            itemArray.push(ItemVal); //push to global item array
+            updateItemList();
+            clearAddExpenseFormInputs();
+            clearSuccessMessage();
+            sendDataToServer();
+      }
 }
 /***************************************************************************************************
  * clearAddStudentForm - clears out the form values based on inputIds variable
@@ -417,15 +414,19 @@ function deleteStudentFromDatabase(idOfStudentToBeDeleted, indexOfCurrentStudent
 function handleFocusInForForm() {
       $("#itemName").focusin(function () {
             clearWarningMessageForitemName();
+            clearSuccessMessage();
       });
       $("#expenseCategory").focusin(function () {
-            clearWarningMessageForStudentCourse();
+            clearWarningMessageForItemCategory();
+            clearSuccessMessage();
       });
       $("#transactionDate").focusin(function () {
             clearWarningMessageForTransactionDate();
+            clearSuccessMessage();
       })
       $("#amountSpent").focusin(function () {
             clearWarningMessageForamountSpent();
+            clearSuccessMessage();
       });
       $("#itemNameUpdate, #expenseCategoryUpdate, #transactionDateUpdate, #amountSpentUpdate").focusin(function () {
             clearUpdateError();
@@ -435,58 +436,127 @@ function handleFocusInForForm() {
 function showWarningMessageForitemName() {
       $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').addClass('has-error');
       $("#itemName").closest('.form-group').next('.warningText').removeClass('hidden');
+      $("#itemName").next('.glyphicon-remove').removeClass('hidden');
 }
 
-function showWarningMessageForStudentCourse() {
+function showWarningMessageForItemCategory() {
       $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').addClass('has-error');
       $("#expenseCategory").closest('.form-group').next('.warningText').removeClass('hidden');
+      $("#expenseCategory").next('.glyphicon-remove').removeClass('hidden');
 }
 
 function showWarningMessageForTransactionDate() {
       $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').addClass('has-error');
       $("#transactionDate").closest('.form-group').next('.warningText').removeClass('hidden');
+      $("#transactionDate").next('.glyphicon-remove').removeClass('hidden');
 }
 
 function showWarningMessageForamountSpent() {
       $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').addClass('has-error');
       $("#amountSpent").closest('.form-group').next('.warningText').removeClass('hidden');
+      $("#amountSpent").next('.glyphicon-remove').removeClass('hidden');
+}
+
+function showSuccessMessageForitemName() {
+      $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').addClass('has-success');
+      $("#itemName").closest('.form-group').next('.warningText').next('.successText').removeClass('hidden');
+      $("#itemName").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
+}
+
+function showSuccessMessageForItemCategory() {
+      $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').addClass('has-success');
+      $("#expenseCategory").closest('.form-group').next('.warningText').next('.successText').removeClass('hidden');
+      $("#expenseCategory").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
+}
+
+function showSuccessMessageForTransactionDate() {
+      $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').addClass('has-success');
+      $("#transactionDate").closest('.form-group').next('.warningText').next('.successText').removeClass('hidden');
+      $("#transactionDate").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
+}
+
+function showSuccessMessageForamountSpent() {
+      $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').addClass('has-success');
+      $("#amountSpent").closest('.form-group').next('.warningText').next('.successText').removeClass('hidden');
+      $("#amountSpent").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
 }
 
 function clearWarningMessageForitemName() {
       $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
       $("#itemName").closest('.form-group').next('.warningText').addClass('hidden');
-      if (!$(".add-item-error").hasClass('hidden')) {
-            $(".add-item-error").addClass('hidden');
-      }
+      $("#itemName").next('.glyphicon-remove').addClass('hidden');
+      clearAddError()
 }
 
-function clearWarningMessageForStudentCourse() {
+function clearWarningMessageForItemCategory() {
       $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
       $("#expenseCategory").closest('.form-group').next('.warningText').addClass('hidden');
-      if (!$(".add-item-error").hasClass('hidden')) {
-            $(".add-item-error").addClass('hidden');
-      }
+      $("#expenseCategory").next('.glyphicon-remove').addClass('hidden');
+      clearAddError()
 }
 
 function clearWarningMessageForTransactionDate() {
       $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
       $("#transactionDate").closest('.form-group').next('.warningText').addClass('hidden');
-      if (!$(".add-item-error").hasClass('hidden')) {
-            $(".add-item-error").addClass('hidden');
-      }
+      $("#transactionDate").next('.glyphicon-remove').addClass('hidden');
+      clearAddError()
 }
 
 function clearWarningMessageForamountSpent() {
       $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
       $("#amountSpent").closest('.form-group').next('.warningText').addClass('hidden');
-      if (!$(".add-item-error").hasClass('hidden')) {
-            $(".add-item-error").addClass('hidden');
-      }
+      $("#amountSpent").next('.glyphicon-remove').addClass('hidden');
+      clearAddError()
+}
+
+// function clearSuccessMessageForitemName() {
+//       $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+//       $("#itemName").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+//       $("#itemName").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+// }
+
+// function clearSuccessMessageForItemCategory() {
+//       $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+//       $("#expenseCategory").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+//       $("#expenseCategory").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+// }
+
+// function clearSuccessMessageForTransactionDate() {
+//       $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+//       $("#transactionDate").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+//       $("#transactionDate").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+// }
+
+// function clearSuccessMessageForamountSpent() {
+//       $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+//       $("#amountSpent").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+//       $("#amountSpent").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+// }
+
+function clearSuccessMessage() {
+      $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+      $("#itemName").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+      $("#itemName").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+      $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+      $("#expenseCategory").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+      $("#expenseCategory").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+      $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+      $("#transactionDate").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+      $("#transactionDate").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+      $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+      $("#amountSpent").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+      $("#amountSpent").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
 }
 
 function clearUpdateError() {
       if (!$(".update-item-error").hasClass('hidden')) {
             $(".update-item-error").addClass('hidden');
+      }
+}
+
+function clearAddError() {
+      if (!$(".add-item-error").hasClass('hidden')) {
+            $(".add-item-error").addClass('hidden');
       }
 }
 
