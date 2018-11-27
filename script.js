@@ -11,15 +11,34 @@ $(document).ready(initializeApp);
  * Define all global variables here.  
  */
 /***********************
- * student_array - global array to hold student objects
+ * itemArray - global array to hold item objects
  * @type {Array}
- * example of student_array after input: 
- * student_array = [
- *  { name: 'Jake', course: 'Math', grade: 85 },
- *  { name: 'Jill', course: 'Comp Sci', grade: 85 }
+ * example of itemArray after input: 
+ * itemArray = [
+ *  { amountSpent: "4.00", expenseCategory: "Dining Out", id: "1", itemName: "Thai Tea", transactionDate: "2018-11-20" },
+ *  { amountSpent: "4.00", expenseCategory: "Dining Out", id: "2", itemName: "Thai Tea", transactionDate: "2018-11-20" }
  * ];
+ * today - global string to hold today date, month, year, etc.
+ * @type {String}
+ * dd - global string to hold today date of the month
+ * @type {String}
+ * mm - global string to hold today month
+ * @type {String}
+ * yyyy - global string to hold current year
+ * @type {String}
+ * todayDate - global string to hold today date in yyyy-mm-dd format
+ * @type {String}
+ * categories - global array to hold options for expense category
+ * @type {Array}
  */
 var itemArray = [];
+var today = null;
+var dd = null;
+var mm = null;
+var yyyy = null;
+var todayDate = getTodayDate();
+var categories = ['Grocery', 'Home Repairs', 'Mortgage/Rent', 'Beauty', 'Clothes', 'Electronics', 'Home Appliances', 'Home Goods', 'Furniture', 'Entertainment', 'Dining Out', 'Other']
+
 /***************************************************************************************************
  * initializeApp 
  * @params {undefined} none
@@ -27,12 +46,25 @@ var itemArray = [];
  * initializes the application, including adding click handlers and pulling in any data from the server, in later versions
  */
 function initializeApp() {
+      $(".todayDate").text(`Current date: ${todayDate}`);
       getDataFromServer();
       addClickHandlersToElements();
       renderOptionOfCategoriesOnDOM();
       handleFocusInForForm();
 }
-
+/***************************************************************************************************
+ * renderOptionOfCategoriesOnDOM - display options for expense category on DOM
+ * @returns {undefined} none
+ */
+function renderOptionOfCategoriesOnDOM() {
+      for (var i = 0; i < categories.length; i++) {
+            var optionOfCourse = $("<option>", {
+                  value: categories[i],
+                  text: categories[i]
+            })
+            $('#expenseCategory, #expenseCategoryUpdate').append(optionOfCourse);
+      }
+}
 /***************************************************************************************************
  * addClickHandlerstoElements
  * @params {undefined} 
@@ -41,40 +73,49 @@ function initializeApp() {
  */
 function addClickHandlersToElements() {
       $(".addItem").click(handleAddClicked);
+      // $("#itemName, #expenseCategory, #transactionDate, #amountSpent").on("keyup", event => {
+      //       if (event.keyCode === 13) {
+      //             event.preventDefault();
+      //             $(".addItem").click(handleAddClicked);
+      //       }
+      // });
       $(".cancelItem").click(handleCancelClick);
-      // $(".getData").click(getDataFromServer);
 }
 
 /***************************************************************************************************
  * handleAddClicked - Event Handler when user clicks the add button
- * @param {object} event  The event object from the click
  * @return: 
        none
  */
 function handleAddClicked() {
-      addStudent();
+      validateAndAddItem();
 }
 /***************************************************************************************************
- * handleCancelClicked - Event Handler when user clicks the cancel button, should clear out student form
+ * handleCancelClicked - Event Handler when user clicks the cancel button, should clear out item form
  * @param: {undefined} none
  * @returns: {undefined} none
- * @calls: clearAddStudentFormInputs
+ * @calls: clearAddExpenseFormInputs, clearSuccessMessage, clearWarningMessageForitemName, clearWarningMessageForItemCategory, clearWarningMessageForTransactionDate, clearWarningMessageForamountSpent
  */
 function handleCancelClick() {
-      clearAddStudentFormInputs();
+      clearAddExpenseFormInputs();
+      clearSuccessMessage();
       clearWarningMessageForitemName();
-      clearWarningMessageForStudentCourse();
-      clearWarningMessageForamountSpent()
+      clearWarningMessageForItemCategory();
+      clearWarningMessageForTransactionDate();
+      clearWarningMessageForamountSpent();
+      isValidated = false;
 }
 /***************************************************************************************************
- * addStudent - creates a student objects based on input fields in the form and adds the object to global student array
- * @param {undefined} none
+ * validateAndAddItem - creates a ItemVal objects based on input fields in the form and adds the object to global itemArray array
+ * @param {boolean} isValidated
  * @return undefined
- * @calls clearAddStudentFormInputs, updateStudentList
+ * @calls showWarningMessageForTransactionDate, showSuccessMessageForTransactionDate, showWarningMessageForitemName, showSuccessMessageForitemName, 
+ * showWarningMessageForItemCategory, showSuccessMessageForItemCategory, showWarningMessageForamountSpent, showSuccessMessageForamountSpent,
+ * updateItemList, clearAddExpenseFormInputs, clearSuccessMessage, sendDataToServer
  */
 
-function addStudent() {
-      var ItemVal = {}; //local student object
+function validateAndAddItem(isValidated = false) {
+      var ItemVal = {}; //local item object
       ItemVal.itemName = $("#itemName").val();
       ItemVal.expenseCategory = $("#expenseCategory option:selected").val();
       ItemVal.transactionDate = $("#transactionDate").val();
@@ -83,276 +124,515 @@ function addStudent() {
       var isLetter = /^[a-zA-Z]+$/.test(ItemVal.itemName);
       var isGreaterThan1Char = /[a-z]{2,}/gi.test(ItemVal.itemName);
       var conditionForLetter = (!isLetter && !isGreaterThan1Char)
-      //debugger;
-      if (conditionForLetter && !ItemVal.expenseCategory) {
-            $("#itemName").val("");
-            $('select').prop('selectedIndex', 0)
-            showWarningMessageForitemName();
-            showWarningMessageForStudentCourse();
-            if (!ItemVal.amountSpent || isNaN(ItemVal.amountSpent) || parseInt(ItemVal.amountSpent) < 0 || parseInt(ItemVal.amountSpent) > 100) {
-                  $("#amountSpent").val("");
-                  showWarningMessageForamountSpent();
-            }
-            return;
-      } else if ((conditionForLetter && !ItemVal.amountSpent) || (conditionForLetter && isNaN(ItemVal.amountSpent)) || (conditionForLetter && parseInt(ItemVal.amountSpent) < 0) || (conditionForLetter && parseInt(ItemVal.amountSpent) > 100)) {
-            $("#itemName").val("");
-            $("#amountSpent").val("");
-            showWarningMessageForitemName();
-            showWarningMessageForamountSpent();
-            if (ItemVal.expenseCategory.length < 1) {
-                  $('select').prop('selectedIndex', 0)
-                  showWarningMessageForStudentCourse();
-            }
-            return;
-      } else if ((!ItemVal.expenseCategory && !ItemVal.amountSpent) || (!ItemVal.expenseCategory && isNaN(ItemVal.amountSpent)) || (!ItemVal.expenseCategory && parseInt(ItemVal.amountSpent) < 0) || (!ItemVal.expenseCategory && parseInt(ItemVal.amountSpent) > 100)) {
-            $('select').prop('selectedIndex', 0);
-            $("#amountSpent").val("");
-            showWarningMessageForStudentCourse();
-            showWarningMessageForamountSpent();
-            if (conditionForLetter) {
-                  $("#itemName").val("");
-                  showWarningMessageForitemName();
-            }
-            return;
-      } else if (conditionForLetter) {
-            $("#itemName").val("");
-            showWarningMessageForitemName();
-            return;
-      } else if (!ItemVal.expenseCategory) {
-            $('select').prop('selectedIndex', 0);
-            showWarningMessageForStudentCourse();
-            return;
-      } else if (!ItemVal.amountSpent || isNaN(ItemVal.amountSpent) || parseInt(ItemVal.amountSpent) < 0 || parseInt(ItemVal.amountSpent) > 100) {
-            $("#amountSpent").val("");
-            showWarningMessageForamountSpent();
-            return;
+
+      if (!ItemVal.transactionDate) {
+            showWarningMessageForTransactionDate();
+      } else {
+            showSuccessMessageForTransactionDate();
       }
-      itemArray.push(ItemVal); //push to global student array
-      updateStudentList();
-      clearAddStudentFormInputs();
-      // sendDataToServer();
+      if (conditionForLetter || ItemVal.itemName.length > 20) {
+            showWarningMessageForitemName();
+      } else {
+            showSuccessMessageForitemName();
+      }
+      if (!ItemVal.expenseCategory) {
+            showWarningMessageForItemCategory();
+      } else {
+            showSuccessMessageForItemCategory();
+      }
+      if (parseFloat(ItemVal.amountSpent).toFixed(2) < 0.01 || !ItemVal.amountSpent) {
+            showWarningMessageForamountSpent();
+      } else {
+            showSuccessMessageForamountSpent();
+      }
+      if (ItemVal.transactionDate) {
+            if (!conditionForLetter) {
+                  if (ItemVal.itemName.length <= 20) {
+                        if (ItemVal.expenseCategory) {
+                              if (parseFloat(ItemVal.amountSpent).toFixed(2) >= 0.01) {
+                                    if (ItemVal.amountSpent) {
+                                          isValidated = true;
+                                    }
+                              }
+                        }
+                  }
+            }
+      }
+      if (isValidated) {
+            itemArray.push(ItemVal); //push to global item array
+            updateItemList();
+            clearAddExpenseFormInputs();
+            clearSuccessMessage();
+            sendDataToServer();
+      }
 }
 /***************************************************************************************************
- * clearAddStudentForm - clears out the form values based on inputIds variable
+ * clearAddExpenseFormInputs - clears out the form values
  */
-function clearAddStudentFormInputs() {
+function clearAddExpenseFormInputs() {
       $("#itemName").val("");
-      $('select').prop('selectedIndex', 0)
+      $('select').prop('selectedIndex', 0);
+      $("#transactionDate").val("");
       $("#amountSpent").val("");
 }
 /***************************************************************************************************
- * renderStudentOnDom - take in a student object, create html elements from the values and then append the elements
- * into the .student_list tbody
- * @param {object} studentObj a single student object with course, name, and grade inside
+ * renderItemOnDom - take in a item object, create html elements from the values and then append the elements
+ * into the .item_list tbody
+ * @param {object} lastObjInitemArray a single item object with itemName, expenseCategory, transactionDate, and amountSpent inside
  */
-function renderStudentOnDom() {
+function renderItemOnDom() {
       var lastObjInitemArray = itemArray[itemArray.length - 1];
       var newTr = $("<tr>", {
             class: "well"
       });
       var itemNameOuput = $("<td>", {
             class: "itemNameOuput",
-            text: lastObjInitemArray.item_name
+            text: lastObjInitemArray.itemName
       });
-      var studentCourseOutput = $("<td>", {
-            class: "studentCourseOutput",
-            text: lastObjInitemArray.expense_category
+      var expenseCategoryOutput = $("<td>", {
+            class: "expenseCategoryOutput",
+            text: lastObjInitemArray.expenseCategory
       });
       var transactionDateOutput = $("<td>", {
             class: "transactionDateOutput",
-            text: lastObjInitemArray.transaction_date
+            text: lastObjInitemArray.transactionDate
       });
       var amountSpentOutput = $("<td>", {
             class: "amountSpentOutput",
-            text: '$' + lastObjInitemArray.amount_spent
+            text: '$' + lastObjInitemArray.amountSpent
       });
-      var deleteBtn = $("<td>").append($("<button>", {
+      var updateBtn = $("<button>", {
             type: "button",
-            class: "deleteBtn btn btn-danger",
+            class: "updateBtn btn btn-update update-btn-w-text",
+            text: "Update"
+      });
+      var updateBtnGlyphicon = $("<button>", {
+            type: "button",
+            class: "updateBtn btn btn-update glyphicon glyphicon-pencil",
+      });
+      var updateBtnArray = [updateBtn, updateBtnGlyphicon];
+      for (var i = 0; i < updateBtnArray.length; i++) {
+            (function () {
+                  updateBtnArray[i].click(function () {
+                        if (!$('.update-item-error').hasClass('hidden')) {
+                              $('.update-item-error').addClass('hidden')
+                        }
+                        $('#itemNameUpdate').val(lastObjInitemArray.itemName);
+                        for (var i = 0; i < categories.length; i++) {
+                              if (categories[i] === lastObjInitemArray.expenseCategory) {
+                                    $('#expenseCategoryUpdate').prop('selectedIndex', i + 1)
+                              }
+                        }
+                        $('#transactionDateUpdate').val(lastObjInitemArray.transactionDate);
+                        $('#amountSpentUpdate').val(lastObjInitemArray.amountSpent);
+                        (function () {
+                              $('.modal-update-btn').off("click").click(function () {
+                                    var indexOfCurrentItem = itemArray.indexOf(lastObjInitemArray);
+                                    var itemID = lastObjInitemArray.id;
+                                    updateDataToServer(itemID);
+                              });
+                        })();
+                        $('.modal-update').modal('show');
+                  })
+            })();
+      }
+      var deleteBtn = $("<button>", {
+            type: "button",
+            class: "deleteBtn btn btn-danger delete-btn-w-text",
             text: "Delete"
-      }));
-      (function () {
-            deleteBtn.click(function () {
-                  var indexOfCurrentStudent = itemArray.indexOf(lastObjInitemArray);
-                  var studentID = lastObjInitemArray.id;
-                  itemArray.splice(indexOfCurrentStudent, 1);
-                  newTr.remove();
-                  renderGradeAverage();
-                  // deleteStudentFromDatabase(studentID);
-            })
-      })();
+      });
+      var deleteBtnGlyphicon = $("<button>", {
+            type: "button",
+            class: "deleteBtn btn btn-danger glyphicon glyphicon-trash",
+      });
+      var deleteBtnArray = [deleteBtn, deleteBtnGlyphicon];
+      for (var i = 0; i < deleteBtnArray.length; i++) {
+            (function () {
+                  deleteBtnArray[i].click(function () {
+                        if (!$('.delete-item-error').hasClass('hidden')) {
+                              $('.delete-item-error').addClass('hidden')
+                        }
+                        $('.delete-body .modal-item-name').empty().append($("<label>", { text: "Item Name:" }), $("<span>", {
+                              text: ` ${lastObjInitemArray.itemName}`
+                        }));
+                        $('.delete-body .modal-expense-category').empty().append($("<label>", { text: "Expense Category:" }), $("<span>", {
+                              text: ` ${lastObjInitemArray.expenseCategory}`
+                        }));
+                        $('.delete-body .modal-transaction-date').empty().append($("<label>", { text: "Transaction Date:" }), $("<span>", {
+                              text: ` ${lastObjInitemArray.transactionDate}`
+                        }));
+                        $('.delete-body .modal-amount-spent').empty().append($("<label>", { text: "Amount Spent:" }), $("<span>", {
+                              text: ` $${lastObjInitemArray.amountSpent}`
+                        }));
+                        (function () {
+                              $('.modal-delete-btn').off("click").click(function () {
+                                    var indexOfCurrentItem = itemArray.indexOf(lastObjInitemArray);
+                                    var itemID = lastObjInitemArray.id;
+                                    deleteItemFromDatabase(itemID, indexOfCurrentItem, newTr);
+                              });
+                        })();
+                        $('.modal-delete').modal('show');
+                  })
+            })();
+      }
+      var btnContainer = $("<td>", { class: 'btnContainer' }).append(updateBtn, updateBtnGlyphicon, deleteBtn, deleteBtnGlyphicon);
       $(".item-list tbody").append(newTr);
-      newTr.append(itemNameOuput, studentCourseOutput, transactionDateOutput, amountSpentOutput, deleteBtn);
+      newTr.append(itemNameOuput, expenseCategoryOutput, transactionDateOutput, amountSpentOutput, btnContainer);
 }
 
 /***************************************************************************************************
- * updateStudentList - centralized function to update the average and call student list update
- * @param students {array} the array of student objects
+ * updateItemList - centralized function to update the total and call item list update
+ * @param items {array} the array of item objects
  * @returns {undefined} none
- * @calls renderStudentOnDom, calculateGradeAverage, renderGradeAverage
+ * @calls renderItemOnDom, calculateExpenseTotal, renderExpenseTotal
  */
-function updateStudentList() {
-      renderStudentOnDom();
-      calculateGradeAverage();
-      renderGradeAverage();
+function updateItemList() {
+      renderItemOnDom();
+      calculateExpenseTotal();
+      renderExpenseTotal();
 }
 /***************************************************************************************************
- * calculateGradeAverage - loop through the global student array and calculate average grade and return that value
- * @param: {array} students  the array of student objects
+ * calculateExpenseTotal - loop through the global item array and calculate total expense based on date that falls in current month and year, and return that value
+ * @param: {array} items  the array of item objects
  * @returns {number}
  */
-function calculateGradeAverage() {
-      var totalGrade = 0;
-      var gradeAverage = 0;
+function calculateExpenseTotal() {
+      var totalExpense = 0;
       for (var itemArrayIndex = 0; itemArrayIndex < itemArray.length; itemArrayIndex++) {
-            totalGrade += parseInt(itemArray[itemArrayIndex].grade);
+            if (itemArray[itemArrayIndex].transactionDate.substring(0, 4) == yyyy && itemArray[0].transactionDate.substring(5, 7) == mm) {
+                  totalExpense += parseInt(itemArray[itemArrayIndex].amountSpent);
+            }
       };
-      gradeAverage = totalGrade / (itemArray.length);
-      if (isNaN(gradeAverage)) {
-            gradeAverage = 0;
-      }
-      return gradeAverage;
+      return totalExpense;
 }
 /***************************************************************************************************
- * renderGradeAverage - updates the on-page grade average
- * @param: {number} average    the grade average
+ * renderExpenseTotal - updates the on-page total expense
  * @returns {undefined} none
  */
-function renderGradeAverage() {
-      $(".avgGrade").text(Math.round(calculateGradeAverage()));
+function renderExpenseTotal() {
+      var currentMonthExpense = calculateExpenseTotal();
+      $(".currentMonthExpense").text(`$${currentMonthExpense}`);
 }
-
+/***************************************************************************************************
+ * getDataFromServer - get item from server
+ * @returns {undefined} none
+ * @calls updateItemList
+ */
 function getDataFromServer() {
-      console.log(api_url.get_items_url);
       $.ajax({
             url: api_url.get_items_url,
             dataType: 'JSON',
             method: 'GET',
             success: function (serverResponse) {
-                  console.log(serverResponse)
                   var result = {};
                   result = serverResponse;
                   if (result.success) {
                         for (var i = 0; i < result.data.length; i++) {
                               itemArray.push(result.data[i]);
-                              updateStudentList();
+                              updateItemList();
                         };
                   };
             }
       });
 }
 
-// var courses = ['Accounting', 'Finance', 'Agriculture', 'American Studies', 'Anatomy', 'Anthropology', 'Archaeology', 'Architecture', 'Art',
-//       'Business & Management Studies', 'Chemistry', 'Civil Engineering', 'Computer Science', 'Counselling', 'Economics', 'English', 'Fashion',
-//       'Film Making', 'Forensic Science', 'French', 'Geography', 'Geology', 'History', 'Law', 'Marketing', 'Mathematics', 'Music',
-//       'Physics and Astronomy', 'Politics', 'Psychology', 'Robotics', 'Sociology'
-// ]
-
-var categories = ['Grocery', 'Home Repairs', 'Mortgage/Rent', 'Clothes', 'Electronics', 'Home Appliances', 'Furniture', 'Entertainment', 'Dinning Out']
-
-function renderOptionOfCategoriesOnDOM() {
-      for (var i = 0; i < categories.length; i++) {
-            var optionOfCourse = $("<option>", {
-                  value: categories[i],
-                  text: categories[i]
-            })
-            $('#expenseCategory').append(optionOfCourse);
-      }
-}
-
+/***************************************************************************************************
+ * updateItemList - centralized function to update the total and call item list update
+ * @param items {array} the array of item objects
+ * @returns {undefined} none
+ * @calls renderItemOnDom, calculateExpenseTotal, renderExpenseTotal
+ */
 function sendDataToServer() {
       var lastObjInitemArray = itemArray[itemArray.length - 1];
       $.ajax({
             dataType: 'JSON',
             data: {
-                  api_key: '3wi5PvJgB7',
-                  name: lastObjInitemArray.name,
-                  course: lastObjInitemArray.course,
-                  grade: lastObjInitemArray.grade,
-                  id: lastObjInitemArray.id
+                  itemName: lastObjInitemArray.itemName,
+                  expenseCategory: lastObjInitemArray.expenseCategory,
+                  transactionDate: lastObjInitemArray.transactionDate,
+                  amountSpent: lastObjInitemArray.amountSpent,
             },
             method: 'POST',
-            url: 'http://s-apis.learningfuze.com/sgt/create',
+            url: api_url.add_item_url,
             success: function (serverResponse) {
                   var result = serverResponse;
                   if (result.success) {
-                        lastObjInitemArray.id = result.new_id;
-                        console.log('You have successfully sent data.');
-                        console.log("result:", result);
+                        lastObjInitemArray.id = result.data[result.data.length - 1].id;
                   }
             },
             error: function (serverResponse) {
-                  var result = serverResponse;
-                  console.log('You have failed to send data.');
-                  console.log("result:", result);
+                  $(".add-item-error").removeClass('hidden')
             }
       })
 }
-
-function deleteStudentFromDatabase(idOfStudentToBeDeleted) {
-      var studentID = idOfStudentToBeDeleted;
+/***************************************************************************************************
+ * updateDataToServer - update the item with specific id in the database
+ * @param idOfItemToBeUpdated {string} the id of item to be updated
+ * @returns {undefined} none
+ * @calls getDataFromServer, renderExpenseTotal
+ */
+function updateDataToServer(idOfItemToBeUpdated) {
+      var ItemVal = {}; //local item object
+      ItemVal.itemName = $("#itemNameUpdate").val();
+      ItemVal.expenseCategory = $("#expenseCategoryUpdate option:selected").val();
+      ItemVal.transactionDate = $("#transactionDateUpdate").val();
+      ItemVal.amountSpent = $("#amountSpentUpdate").val();
       $.ajax({
-            method: 'POST',
+            dataType: 'JSON',
             data: {
-                  api_key: '3wi5PvJgB7',
-                  student_id: studentID,
+                  itemID: idOfItemToBeUpdated,
+                  itemName: ItemVal.itemName,
+                  expenseCategory: ItemVal.expenseCategory,
+                  transactionDate: ItemVal.transactionDate,
+                  amountSpent: ItemVal.amountSpent,
             },
-            url: 'http://s-apis.learningfuze.com/sgt/delete',
+            method: 'POST',
+            url: api_url.update_item_url,
             success: function (serverResponse) {
                   var result = serverResponse;
                   if (result.success) {
-                        console.log('You have successfully deleted data.');
+                        for (var i = 0; i < itemArray.length; i++) {
+                              if (itemArray[i].id === idOfItemToBeUpdated) {
+                                    itemArray[i].itemName = ItemVal.itemName;
+                                    itemArray[i].expenseCategory = ItemVal.expenseCategory;
+                                    itemArray[i].transactionDate = ItemVal.transactionDate;
+                                    itemArray[i].amountSpent = ItemVal.amountSpent;
+                              }
+                        }
+                        $(".modal-update").modal('hide');
+                        $(".item-list tbody").empty();
+                        getDataFromServer();
+                        renderExpenseTotal();
+                  } else {
+                        $(".update-item-error").removeClass('hidden');
+                  }
+            },
+            error: function (serverResponse) {
+                  $(".update-item-error").removeClass('hidden');
+            }
+      })
+}
+/***************************************************************************************************
+ * deleteItemFromDatabase - delete item from database
+ * @param idOfItemToBeDeleted {string} id of item to be deleted
+ * @param indexOfCurrentItem {number} index of item to be removed from itemArray
+ * @param newTr {string} element to be removed from DOM
+ * @returns {undefined} none
+ */
+function deleteItemFromDatabase(idOfItemToBeDeleted, indexOfCurrentItem, newTr) {
+      var itemID = idOfItemToBeDeleted;
+      $.ajax({
+            method: 'POST',
+            data: {
+                  itemID: itemID,
+            },
+            url: api_url.delete_item_url,
+            success: function (serverResponse) {
+                  var result = serverResponse;
+                  if (result.success) {
+                        itemArray.splice(indexOfCurrentItem, 1);
+                        newTr.remove();
+                        renderExpenseTotal();
+                        $(".modal-delete").modal('hide');
+                  } else {
+                        $(".delete-item-error").removeClass('hidden');
                   };
             },
+            error: function () {
+                  $(".delete-item-error").removeClass('hidden');
+            }
       });
 }
 
-//handle focusin for form
-
+/***************************************************************************************************
+ * handleFocusInForForm - clear out messages when input form is focused
+ * @returns {undefined} none
+ * @calls clearWarningMessageForitemName, clearSuccessMessage, clearWarningMessageForItemCategory,
+ * clearWarningMessageForTransactionDate, clearWarningMessageForamountSpent, clearUpdateError
+ */
 function handleFocusInForForm() {
       $("#itemName").focusin(function () {
             clearWarningMessageForitemName();
-      })
+            clearSuccessMessage();
+      });
       $("#expenseCategory").focusin(function () {
-            clearWarningMessageForStudentCourse();
+            clearWarningMessageForItemCategory();
+            clearSuccessMessage();
+      });
+      $("#transactionDate").focusin(function () {
+            clearWarningMessageForTransactionDate();
+            clearSuccessMessage();
       })
       $("#amountSpent").focusin(function () {
             clearWarningMessageForamountSpent();
-      })
+            clearSuccessMessage();
+      });
+      $("#itemNameUpdate, #expenseCategoryUpdate, #transactionDateUpdate, #amountSpentUpdate").focusin(function () {
+            clearUpdateError();
+      });
 }
-
+/***************************************************************************************************
+ * showWarningMessageForitemName, showWarningMessageForItemCategory,
+ * showWarningMessageForTransactionDate, showWarningMessageForamountSpent - show warning message for certain input field
+ * @returns {undefined} none
+ */
 function showWarningMessageForitemName() {
-      $(".glyphicon-tag").closest('.input-group-addon').addClass('backgroundAndTextRed borderRed');
-      $("#itemName").addClass('borderRed');
+      $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').addClass('has-error');
       $("#itemName").closest('.form-group').next('.warningText').removeClass('hidden');
+      $("#itemName").next('.glyphicon-remove').removeClass('hidden');
 }
 
-function showWarningMessageForStudentCourse() {
-      $(".glyphicon-list-alt").closest('.input-group-addon').addClass('backgroundAndTextRed borderRed');
-      $("#expenseCategory").addClass('borderRed');
+function showWarningMessageForItemCategory() {
+      $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').addClass('has-error');
       $("#expenseCategory").closest('.form-group').next('.warningText').removeClass('hidden');
+      $("#expenseCategory").next('.glyphicon-remove').removeClass('hidden');
+}
+
+function showWarningMessageForTransactionDate() {
+      $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').addClass('has-error');
+      $("#transactionDate").closest('.form-group').next('.warningText').removeClass('hidden');
+      $("#transactionDate").next('.glyphicon-remove').removeClass('hidden');
 }
 
 function showWarningMessageForamountSpent() {
-      $(".glyphicon-usd").closest('.input-group-addon').addClass('backgroundAndTextRed borderRed');
-      $("#amountSpent").addClass('borderRed');
+      $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').addClass('has-error');
       $("#amountSpent").closest('.form-group').next('.warningText').removeClass('hidden');
+      $("#amountSpent").next('.glyphicon-remove').removeClass('hidden');
+}
+/***************************************************************************************************
+ * showSuccessMessageForitemName, showSuccessMessageForItemCategory,
+ * showSuccessMessageForTransactionDate, showSuccessMessageForamountSpent - show success message for certain input field
+ * @returns {undefined} none
+ */
+function showSuccessMessageForitemName() {
+      $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').addClass('has-success');
+      $("#itemName").closest('.form-group').next('.warningText').next('.successText').removeClass('hidden');
+      $("#itemName").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
 }
 
+function showSuccessMessageForItemCategory() {
+      $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').addClass('has-success');
+      $("#expenseCategory").closest('.form-group').next('.warningText').next('.successText').removeClass('hidden');
+      $("#expenseCategory").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
+}
+
+function showSuccessMessageForTransactionDate() {
+      $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').addClass('has-success');
+      $("#transactionDate").closest('.form-group').next('.warningText').next('.successText').removeClass('hidden');
+      $("#transactionDate").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
+}
+
+function showSuccessMessageForamountSpent() {
+      $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').addClass('has-success');
+      $("#amountSpent").closest('.form-group').next('.warningText').next('.successText').removeClass('hidden');
+      $("#amountSpent").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
+}
+/***************************************************************************************************
+ * clearWarningMessageForitemName, clearWarningMessageForItemCategory,
+ * clearWarningMessageForTransactionDate, clearWarningMessageForamountSpent - clear warning message for certain input field
+ * @returns {undefined} none
+ */
 function clearWarningMessageForitemName() {
-      $(".glyphicon-tag").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
-      $("#itemName").removeClass('borderRed');
+      $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
       $("#itemName").closest('.form-group').next('.warningText').addClass('hidden');
+      $("#itemName").next('.glyphicon-remove').addClass('hidden');
+      clearAddError()
 }
 
-function clearWarningMessageForStudentCourse() {
-      $(".glyphicon-list-alt").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
-      $("#expenseCategory").removeClass('borderRed');
+function clearWarningMessageForItemCategory() {
+      $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
       $("#expenseCategory").closest('.form-group').next('.warningText').addClass('hidden');
+      $("#expenseCategory").next('.glyphicon-remove').addClass('hidden');
+      clearAddError()
+}
+
+function clearWarningMessageForTransactionDate() {
+      $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
+      $("#transactionDate").closest('.form-group').next('.warningText').addClass('hidden');
+      $("#transactionDate").next('.glyphicon-remove').addClass('hidden');
+      clearAddError()
 }
 
 function clearWarningMessageForamountSpent() {
-      $(".glyphicon-usd").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
-      $("#amountSpent").removeClass('borderRed');
+      $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
       $("#amountSpent").closest('.form-group').next('.warningText').addClass('hidden');
+      $("#amountSpent").next('.glyphicon-remove').addClass('hidden');
+      clearAddError()
+}
+
+// function clearSuccessMessageForitemName() {
+//       $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+//       $("#itemName").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+//       $("#itemName").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+// }
+
+// function clearSuccessMessageForItemCategory() {
+//       $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+//       $("#expenseCategory").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+//       $("#expenseCategory").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+// }
+
+// function clearSuccessMessageForTransactionDate() {
+//       $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+//       $("#transactionDate").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+//       $("#transactionDate").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+// }
+
+// function clearSuccessMessageForamountSpent() {
+//       $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+//       $("#amountSpent").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+//       $("#amountSpent").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+// }
+/***************************************************************************************************
+ * clearSuccessMessage - clear success message for certain input field
+ * @returns {undefined} none
+ */
+function clearSuccessMessage() {
+      $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+      $("#itemName").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+      $("#itemName").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+      $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+      $("#expenseCategory").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+      $("#expenseCategory").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+      $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+      $("#transactionDate").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+      $("#transactionDate").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+      $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
+      $("#amountSpent").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
+      $("#amountSpent").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+}
+/***************************************************************************************************
+ * clearUpdateError - clear update error
+ * @returns {undefined} none
+ */
+function clearUpdateError() {
+      if (!$(".update-item-error").hasClass('hidden')) {
+            $(".update-item-error").addClass('hidden');
+      }
+}
+/***************************************************************************************************
+ * clearAddError - clear add error
+ * @returns {undefined} none
+ */
+function clearAddError() {
+      if (!$(".add-item-error").hasClass('hidden')) {
+            $(".add-item-error").addClass('hidden');
+      }
+}
+/***************************************************************************************************
+ * getTodayDate - get today date and update global variables today, dd, mm, yyyy, todayDate
+ * @returns {string} 
+ */
+function getTodayDate() {
+      today = new Date();
+      dd = today.getDate();
+      mm = today.getMonth() + 1; //January is 0!
+      yyyy = today.getFullYear();
+      if (dd < 10) {
+            dd = '0' + dd
+      }
+      if (mm < 10) {
+            mm = '0' + mm
+      }
+      return `${yyyy}-${mm}-${dd}`;
 }
