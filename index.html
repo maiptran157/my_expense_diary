@@ -76,11 +76,22 @@
         .add-expense-header{
             color: rgb(0, 115, 255);
         }
-        /* .btnContainer {
-            display: flex;
-            justify-content: center;
-            border-top: 0;
-        } */
+        @media only screen and (max-width: 1192.22px) {
+            .update-btn-w-text, .delete-btn-w-text{
+                display: none
+            }
+        }
+        @media only screen and (max-width: 1085.56px) {
+            body {
+                font-size: 16px;
+            }
+        }
+        @media only screen and (min-width: 1192.23px){
+            .glyphicon-pencil, .glyphicon-trash {
+                display: none 
+            }
+        }
+
     </style>
 </head>
 

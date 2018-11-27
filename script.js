@@ -179,71 +179,79 @@ function renderItemOnDom() {
       });
       var updateBtn = $("<button>", {
             type: "button",
-            class: "updateBtn btn btn-update",
+            class: "updateBtn btn btn-update update-btn-w-text",
             text: "Update"
       });
-      (function () {
-            updateBtn.click(function () {
-                  if (!$('.update-item-error').hasClass('hidden')) {
-                        $('.update-item-error').addClass('hidden')
-                  }
-                  $('#itemNameUpdate').val(lastObjInitemArray.itemName);
-                  for (var i = 0; i < categories.length; i++) {
-                        if (categories[i] === lastObjInitemArray.expenseCategory) {
-                              $('#expenseCategoryUpdate').prop('selectedIndex', i + 1)
+      var updateBtnGlyphicon = $("<button>", {
+            type: "button",
+            class: "updateBtn btn btn-update glyphicon glyphicon-pencil",
+      });
+      var updateBtnArray = [updateBtn, updateBtnGlyphicon];
+      for (var i = 0; i < updateBtnArray.length; i++) {
+            (function () {
+                  updateBtnArray[i].click(function () {
+                        if (!$('.update-item-error').hasClass('hidden')) {
+                              $('.update-item-error').addClass('hidden')
                         }
-                  }
-                  $('#transactionDateUpdate').val(lastObjInitemArray.transactionDate);
-                  $('#amountSpentUpdate').val(lastObjInitemArray.amountSpent);
-                  (function () {
-                        $('.modal-update-btn').off("click").click(function () {
-                              var indexOfCurrentStudent = itemArray.indexOf(lastObjInitemArray);
-                              var studentID = lastObjInitemArray.id;
-                              // itemArray.splice(indexOfCurrentStudent, 1);
-                              // newTr.remove();
-                              // renderExpenseTotal();
-                              updateDataToServer(studentID);
-                              console.log("Item clicked:", studentID);
-                              // console.log("Item that was updated:", lastObjInitemArray.itemName);
-                        });
-                  })();
-                  $('.modal-update').modal('show');
-            })
-      })();
+                        $('#itemNameUpdate').val(lastObjInitemArray.itemName);
+                        for (var i = 0; i < categories.length; i++) {
+                              if (categories[i] === lastObjInitemArray.expenseCategory) {
+                                    $('#expenseCategoryUpdate').prop('selectedIndex', i + 1)
+                              }
+                        }
+                        $('#transactionDateUpdate').val(lastObjInitemArray.transactionDate);
+                        $('#amountSpentUpdate').val(lastObjInitemArray.amountSpent);
+                        (function () {
+                              $('.modal-update-btn').off("click").click(function () {
+                                    var indexOfCurrentStudent = itemArray.indexOf(lastObjInitemArray);
+                                    var studentID = lastObjInitemArray.id;
+                                    updateDataToServer(studentID);
+                              });
+                        })();
+                        $('.modal-update').modal('show');
+                  })
+            })();
+      }
       var deleteBtn = $("<button>", {
             type: "button",
-            class: "deleteBtn btn btn-danger",
+            class: "deleteBtn btn btn-danger delete-btn-w-text",
             text: "Delete"
       });
-      (function () {
-            deleteBtn.click(function () {
-                  if (!$('.delete-item-error').hasClass('hidden')) {
-                        $('.delete-item-error').addClass('hidden')
-                  }
-                  $('.delete-body .modal-item-name').empty().append($("<label>", { text: "Item Name:" }), $("<span>", {
-                        text: ` ${lastObjInitemArray.itemName}`
-                  }));
-                  $('.delete-body .modal-expense-category').empty().append($("<label>", { text: "Expense Category:" }), $("<span>", {
-                        text: ` ${lastObjInitemArray.expenseCategory}`
-                  }));
-                  $('.delete-body .modal-transaction-date').empty().append($("<label>", { text: "Transaction Date:" }), $("<span>", {
-                        text: ` ${lastObjInitemArray.transactionDate}`
-                  }));
-                  $('.delete-body .modal-amount-spent').empty().append($("<label>", { text: "Amount Spent:" }), $("<span>", {
-                        text: ` $${lastObjInitemArray.amountSpent}`
-                  }));
-                  (function () {
-                        $('.modal-delete-btn').off("click").click(function () {
-                              var indexOfCurrentStudent = itemArray.indexOf(lastObjInitemArray);
-                              var studentID = lastObjInitemArray.id;
-                              deleteStudentFromDatabase(studentID, indexOfCurrentStudent, newTr);
-                              // console.log("Item that was deleted:", lastObjInitemArray.itemName);
-                        });
-                  })();
-                  $('.modal-delete').modal('show');
-            })
-      })();
-      var btnContainer = $("<td>", { class: 'btnContainer' }).append(updateBtn, deleteBtn);
+      var deleteBtnGlyphicon = $("<button>", {
+            type: "button",
+            class: "deleteBtn btn btn-danger glyphicon glyphicon-trash",
+      });
+      var deleteBtnArray = [deleteBtn, deleteBtnGlyphicon];
+      for (var i = 0; i < deleteBtnArray.length; i++) {
+            (function () {
+                  deleteBtnArray[i].click(function () {
+                        if (!$('.delete-item-error').hasClass('hidden')) {
+                              $('.delete-item-error').addClass('hidden')
+                        }
+                        $('.delete-body .modal-item-name').empty().append($("<label>", { text: "Item Name:" }), $("<span>", {
+                              text: ` ${lastObjInitemArray.itemName}`
+                        }));
+                        $('.delete-body .modal-expense-category').empty().append($("<label>", { text: "Expense Category:" }), $("<span>", {
+                              text: ` ${lastObjInitemArray.expenseCategory}`
+                        }));
+                        $('.delete-body .modal-transaction-date').empty().append($("<label>", { text: "Transaction Date:" }), $("<span>", {
+                              text: ` ${lastObjInitemArray.transactionDate}`
+                        }));
+                        $('.delete-body .modal-amount-spent').empty().append($("<label>", { text: "Amount Spent:" }), $("<span>", {
+                              text: ` $${lastObjInitemArray.amountSpent}`
+                        }));
+                        (function () {
+                              $('.modal-delete-btn').off("click").click(function () {
+                                    var indexOfCurrentStudent = itemArray.indexOf(lastObjInitemArray);
+                                    var studentID = lastObjInitemArray.id;
+                                    deleteStudentFromDatabase(studentID, indexOfCurrentStudent, newTr);
+                              });
+                        })();
+                        $('.modal-delete').modal('show');
+                  })
+            })();
+      }
+      var btnContainer = $("<td>", { class: 'btnContainer' }).append(updateBtn, updateBtnGlyphicon, deleteBtn, deleteBtnGlyphicon);
       $(".item-list tbody").append(newTr);
       newTr.append(itemNameOuput, studentCourseOutput, transactionDateOutput, amountSpentOutput, btnContainer);
 }
@@ -368,13 +376,13 @@ function updateDataToServer(idOfStudentToBeUpdated) {
                         $(".modal-update").modal('hide');
                         $(".item-list tbody").empty();
                         getDataFromServer();
+                        renderExpenseTotal();
                   } else {
                         $(".update-item-error").removeClass('hidden');
                   }
             },
             error: function (serverResponse) {
                   $(".update-item-error").removeClass('hidden');
-                  // console.log('There was en error trying to update the item. Please try again')
             }
       })
 }
@@ -425,37 +433,27 @@ function handleFocusInForForm() {
 }
 
 function showWarningMessageForitemName() {
-      // $(".glyphicon-tag").closest('.input-group-addon').addClass('backgroundAndTextRed borderRed');
       $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').addClass('has-error');
-      // $("#itemName").addClass('borderRed');
       $("#itemName").closest('.form-group').next('.warningText').removeClass('hidden');
 }
 
 function showWarningMessageForStudentCourse() {
-      // $(".glyphicon-list-alt").closest('.input-group-addon').addClass('backgroundAndTextRed borderRed');
       $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').addClass('has-error');
-      // $("#expenseCategory").addClass('borderRed');
       $("#expenseCategory").closest('.form-group').next('.warningText').removeClass('hidden');
 }
 
 function showWarningMessageForTransactionDate() {
-      // $(".glyphicon-calendar").closest('.input-group-addon').addClass('backgroundAndTextRed borderRed');
       $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').addClass('has-error');
-      // $("#transactionDate").addClass('borderRed');
       $("#transactionDate").closest('.form-group').next('.warningText').removeClass('hidden');
 }
 
 function showWarningMessageForamountSpent() {
-      // $(".glyphicon-usd").closest('.input-group-addon').addClass('backgroundAndTextRed borderRed');
       $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').addClass('has-error');
-      // $("#amountSpent").addClass('borderRed');
       $("#amountSpent").closest('.form-group').next('.warningText').removeClass('hidden');
 }
 
 function clearWarningMessageForitemName() {
-      // $(".glyphicon-tag").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
       $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
-      // $("#itemName").removeClass('borderRed');
       $("#itemName").closest('.form-group').next('.warningText').addClass('hidden');
       if (!$(".add-item-error").hasClass('hidden')) {
             $(".add-item-error").addClass('hidden');
@@ -463,9 +461,7 @@ function clearWarningMessageForitemName() {
 }
 
 function clearWarningMessageForStudentCourse() {
-      // $(".glyphicon-list-alt").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
       $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
-      // $("#expenseCategory").removeClass('borderRed');
       $("#expenseCategory").closest('.form-group').next('.warningText').addClass('hidden');
       if (!$(".add-item-error").hasClass('hidden')) {
             $(".add-item-error").addClass('hidden');
@@ -473,9 +469,7 @@ function clearWarningMessageForStudentCourse() {
 }
 
 function clearWarningMessageForTransactionDate() {
-      // $(".glyphicon-calendar").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
       $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
-      // $("#transactionDate").removeClass('borderRed');
       $("#transactionDate").closest('.form-group').next('.warningText').addClass('hidden');
       if (!$(".add-item-error").hasClass('hidden')) {
             $(".add-item-error").addClass('hidden');
@@ -483,9 +477,7 @@ function clearWarningMessageForTransactionDate() {
 }
 
 function clearWarningMessageForamountSpent() {
-      // $(".glyphicon-usd").closest('.input-group-addon').removeClass('backgroundAndTextRed borderRed');
       $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
-      // $("#amountSpent").removeClass('borderRed');
       $("#amountSpent").closest('.form-group').next('.warningText').addClass('hidden');
       if (!$(".add-item-error").hasClass('hidden')) {
             $(".add-item-error").addClass('hidden');
