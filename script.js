@@ -11,13 +11,25 @@ $(document).ready(initializeApp);
  * Define all global variables here.  
  */
 /***********************
- * student_array - global array to hold student objects
+ * itemArray - global array to hold item objects
  * @type {Array}
- * example of student_array after input: 
- * student_array = [
- *  { name: 'Jake', course: 'Math', grade: 85 },
- *  { name: 'Jill', course: 'Comp Sci', grade: 85 }
+ * example of itemArray after input: 
+ * itemArray = [
+ *  { amountSpent: "4.00", expenseCategory: "Dining Out", id: "1", itemName: "Thai Tea", transactionDate: "2018-11-20" },
+ *  { amountSpent: "4.00", expenseCategory: "Dining Out", id: "2", itemName: "Thai Tea", transactionDate: "2018-11-20" }
  * ];
+ * today - global string to hold today date, month, year, etc.
+ * @type {String}
+ * dd - global string to hold today date of the month
+ * @type {String}
+ * mm - global string to hold today month
+ * @type {String}
+ * yyyy - global string to hold current year
+ * @type {String}
+ * todayDate - global string to hold today date in yyyy-mm-dd format
+ * @type {String}
+ * categories - global array to hold options for expense category
+ * @type {Array}
  */
 var itemArray = [];
 var today = null;
@@ -25,6 +37,7 @@ var dd = null;
 var mm = null;
 var yyyy = null;
 var todayDate = getTodayDate();
+var categories = ['Grocery', 'Home Repairs', 'Mortgage/Rent', 'Beauty', 'Clothes', 'Electronics', 'Home Appliances', 'Home Goods', 'Furniture', 'Entertainment', 'Dining Out', 'Other']
 
 /***************************************************************************************************
  * initializeApp 
@@ -39,7 +52,19 @@ function initializeApp() {
       renderOptionOfCategoriesOnDOM();
       handleFocusInForForm();
 }
-
+/***************************************************************************************************
+ * renderOptionOfCategoriesOnDOM - display options for expense category on DOM
+ * @returns {undefined} none
+ */
+function renderOptionOfCategoriesOnDOM() {
+      for (var i = 0; i < categories.length; i++) {
+            var optionOfCourse = $("<option>", {
+                  value: categories[i],
+                  text: categories[i]
+            })
+            $('#expenseCategory, #expenseCategoryUpdate').append(optionOfCourse);
+      }
+}
 /***************************************************************************************************
  * addClickHandlerstoElements
  * @params {undefined} 
@@ -59,18 +84,17 @@ function addClickHandlersToElements() {
 
 /***************************************************************************************************
  * handleAddClicked - Event Handler when user clicks the add button
- * @param {object} event  The event object from the click
  * @return: 
        none
  */
 function handleAddClicked() {
-      validateAndAddStudent();
+      validateAndAddItem();
 }
 /***************************************************************************************************
- * handleCancelClicked - Event Handler when user clicks the cancel button, should clear out student form
+ * handleCancelClicked - Event Handler when user clicks the cancel button, should clear out item form
  * @param: {undefined} none
  * @returns: {undefined} none
- * @calls: clearAddExpenseFormInputs
+ * @calls: clearAddExpenseFormInputs, clearSuccessMessage, clearWarningMessageForitemName, clearWarningMessageForItemCategory, clearWarningMessageForTransactionDate, clearWarningMessageForamountSpent
  */
 function handleCancelClick() {
       clearAddExpenseFormInputs();
@@ -78,17 +102,20 @@ function handleCancelClick() {
       clearWarningMessageForitemName();
       clearWarningMessageForItemCategory();
       clearWarningMessageForTransactionDate();
-      clearWarningMessageForamountSpent()
+      clearWarningMessageForamountSpent();
+      isValidated = false;
 }
 /***************************************************************************************************
- * addStudent - creates a student objects based on input fields in the form and adds the object to global student array
- * @param {undefined} none
+ * validateAndAddItem - creates a ItemVal objects based on input fields in the form and adds the object to global itemArray array
+ * @param {boolean} isValidated
  * @return undefined
- * @calls clearAddExpenseFormInputs, updateItemList
+ * @calls showWarningMessageForTransactionDate, showSuccessMessageForTransactionDate, showWarningMessageForitemName, showSuccessMessageForitemName, 
+ * showWarningMessageForItemCategory, showSuccessMessageForItemCategory, showWarningMessageForamountSpent, showSuccessMessageForamountSpent,
+ * updateItemList, clearAddExpenseFormInputs, clearSuccessMessage, sendDataToServer
  */
 
-function validateAndAddStudent(isValidated = false) {
-      var ItemVal = {}; //local student object
+function validateAndAddItem(isValidated = false) {
+      var ItemVal = {}; //local item object
       ItemVal.itemName = $("#itemName").val();
       ItemVal.expenseCategory = $("#expenseCategory option:selected").val();
       ItemVal.transactionDate = $("#transactionDate").val();
@@ -140,7 +167,7 @@ function validateAndAddStudent(isValidated = false) {
       }
 }
 /***************************************************************************************************
- * clearAddStudentForm - clears out the form values based on inputIds variable
+ * clearAddExpenseFormInputs - clears out the form values
  */
 function clearAddExpenseFormInputs() {
       $("#itemName").val("");
@@ -149,9 +176,9 @@ function clearAddExpenseFormInputs() {
       $("#amountSpent").val("");
 }
 /***************************************************************************************************
- * renderItemOnDom - take in a student object, create html elements from the values and then append the elements
- * into the .student_list tbody
- * @param {object} studentObj a single student object with course, name, and grade inside
+ * renderItemOnDom - take in a item object, create html elements from the values and then append the elements
+ * into the .item_list tbody
+ * @param {object} lastObjInitemArray a single item object with itemName, expenseCategory, transactionDate, and amountSpent inside
  */
 function renderItemOnDom() {
       var lastObjInitemArray = itemArray[itemArray.length - 1];
@@ -162,8 +189,8 @@ function renderItemOnDom() {
             class: "itemNameOuput",
             text: lastObjInitemArray.itemName
       });
-      var studentCourseOutput = $("<td>", {
-            class: "studentCourseOutput",
+      var expenseCategoryOutput = $("<td>", {
+            class: "expenseCategoryOutput",
             text: lastObjInitemArray.expenseCategory
       });
       var transactionDateOutput = $("<td>", {
@@ -200,9 +227,9 @@ function renderItemOnDom() {
                         $('#amountSpentUpdate').val(lastObjInitemArray.amountSpent);
                         (function () {
                               $('.modal-update-btn').off("click").click(function () {
-                                    var indexOfCurrentStudent = itemArray.indexOf(lastObjInitemArray);
-                                    var studentID = lastObjInitemArray.id;
-                                    updateDataToServer(studentID);
+                                    var indexOfCurrentItem = itemArray.indexOf(lastObjInitemArray);
+                                    var itemID = lastObjInitemArray.id;
+                                    updateDataToServer(itemID);
                               });
                         })();
                         $('.modal-update').modal('show');
@@ -239,9 +266,9 @@ function renderItemOnDom() {
                         }));
                         (function () {
                               $('.modal-delete-btn').off("click").click(function () {
-                                    var indexOfCurrentStudent = itemArray.indexOf(lastObjInitemArray);
-                                    var studentID = lastObjInitemArray.id;
-                                    deleteStudentFromDatabase(studentID, indexOfCurrentStudent, newTr);
+                                    var indexOfCurrentItem = itemArray.indexOf(lastObjInitemArray);
+                                    var itemID = lastObjInitemArray.id;
+                                    deleteItemFromDatabase(itemID, indexOfCurrentItem, newTr);
                               });
                         })();
                         $('.modal-delete').modal('show');
@@ -250,12 +277,12 @@ function renderItemOnDom() {
       }
       var btnContainer = $("<td>", { class: 'btnContainer' }).append(updateBtn, updateBtnGlyphicon, deleteBtn, deleteBtnGlyphicon);
       $(".item-list tbody").append(newTr);
-      newTr.append(itemNameOuput, studentCourseOutput, transactionDateOutput, amountSpentOutput, btnContainer);
+      newTr.append(itemNameOuput, expenseCategoryOutput, transactionDateOutput, amountSpentOutput, btnContainer);
 }
 
 /***************************************************************************************************
- * updateItemList - centralized function to update the average and call student list update
- * @param students {array} the array of student objects
+ * updateItemList - centralized function to update the total and call item list update
+ * @param items {array} the array of item objects
  * @returns {undefined} none
  * @calls renderItemOnDom, calculateExpenseTotal, renderExpenseTotal
  */
@@ -265,8 +292,8 @@ function updateItemList() {
       renderExpenseTotal();
 }
 /***************************************************************************************************
- * calculateExpenseTotal - loop through the global student array and calculate average grade and return that value
- * @param: {array} students  the array of student objects
+ * calculateExpenseTotal - loop through the global item array and calculate total expense based on date that falls in current month and year, and return that value
+ * @param: {array} items  the array of item objects
  * @returns {number}
  */
 function calculateExpenseTotal() {
@@ -279,15 +306,18 @@ function calculateExpenseTotal() {
       return totalExpense;
 }
 /***************************************************************************************************
- * renderExpenseTotal - updates the on-page grade average
- * @param: {number} average    the grade average
+ * renderExpenseTotal - updates the on-page total expense
  * @returns {undefined} none
  */
 function renderExpenseTotal() {
       var currentMonthExpense = calculateExpenseTotal();
       $(".currentMonthExpense").text(`$${currentMonthExpense}`);
 }
-
+/***************************************************************************************************
+ * getDataFromServer - get item from server
+ * @returns {undefined} none
+ * @calls updateItemList
+ */
 function getDataFromServer() {
       $.ajax({
             url: api_url.get_items_url,
@@ -306,18 +336,12 @@ function getDataFromServer() {
       });
 }
 
-var categories = ['Grocery', 'Home Repairs', 'Mortgage/Rent', 'Beauty', 'Clothes', 'Electronics', 'Home Appliances', 'Home Goods', 'Furniture', 'Entertainment', 'Dining Out', 'Other']
-
-function renderOptionOfCategoriesOnDOM() {
-      for (var i = 0; i < categories.length; i++) {
-            var optionOfCourse = $("<option>", {
-                  value: categories[i],
-                  text: categories[i]
-            })
-            $('#expenseCategory, #expenseCategoryUpdate').append(optionOfCourse);
-      }
-}
-
+/***************************************************************************************************
+ * updateItemList - centralized function to update the total and call item list update
+ * @param items {array} the array of item objects
+ * @returns {undefined} none
+ * @calls renderItemOnDom, calculateExpenseTotal, renderExpenseTotal
+ */
 function sendDataToServer() {
       var lastObjInitemArray = itemArray[itemArray.length - 1];
       $.ajax({
@@ -341,8 +365,13 @@ function sendDataToServer() {
             }
       })
 }
-
-function updateDataToServer(idOfStudentToBeUpdated) {
+/***************************************************************************************************
+ * updateDataToServer - update the item with specific id in the database
+ * @param idOfItemToBeUpdated {string} the id of item to be updated
+ * @returns {undefined} none
+ * @calls getDataFromServer, renderExpenseTotal
+ */
+function updateDataToServer(idOfItemToBeUpdated) {
       var ItemVal = {}; //local item object
       ItemVal.itemName = $("#itemNameUpdate").val();
       ItemVal.expenseCategory = $("#expenseCategoryUpdate option:selected").val();
@@ -351,7 +380,7 @@ function updateDataToServer(idOfStudentToBeUpdated) {
       $.ajax({
             dataType: 'JSON',
             data: {
-                  itemID: idOfStudentToBeUpdated,
+                  itemID: idOfItemToBeUpdated,
                   itemName: ItemVal.itemName,
                   expenseCategory: ItemVal.expenseCategory,
                   transactionDate: ItemVal.transactionDate,
@@ -363,7 +392,7 @@ function updateDataToServer(idOfStudentToBeUpdated) {
                   var result = serverResponse;
                   if (result.success) {
                         for (var i = 0; i < itemArray.length; i++) {
-                              if (itemArray[i].id === idOfStudentToBeUpdated) {
+                              if (itemArray[i].id === idOfItemToBeUpdated) {
                                     itemArray[i].itemName = ItemVal.itemName;
                                     itemArray[i].expenseCategory = ItemVal.expenseCategory;
                                     itemArray[i].transactionDate = ItemVal.transactionDate;
@@ -383,19 +412,25 @@ function updateDataToServer(idOfStudentToBeUpdated) {
             }
       })
 }
-
-function deleteStudentFromDatabase(idOfStudentToBeDeleted, indexOfCurrentStudent, newTr) {
-      var studentID = idOfStudentToBeDeleted;
+/***************************************************************************************************
+ * deleteItemFromDatabase - delete item from database
+ * @param idOfItemToBeDeleted {string} id of item to be deleted
+ * @param indexOfCurrentItem {number} index of item to be removed from itemArray
+ * @param newTr {string} element to be removed from DOM
+ * @returns {undefined} none
+ */
+function deleteItemFromDatabase(idOfItemToBeDeleted, indexOfCurrentItem, newTr) {
+      var itemID = idOfItemToBeDeleted;
       $.ajax({
             method: 'POST',
             data: {
-                  itemID: studentID,
+                  itemID: itemID,
             },
             url: api_url.delete_item_url,
             success: function (serverResponse) {
                   var result = serverResponse;
                   if (result.success) {
-                        itemArray.splice(indexOfCurrentStudent, 1);
+                        itemArray.splice(indexOfCurrentItem, 1);
                         newTr.remove();
                         renderExpenseTotal();
                         $(".modal-delete").modal('hide');
@@ -409,8 +444,12 @@ function deleteStudentFromDatabase(idOfStudentToBeDeleted, indexOfCurrentStudent
       });
 }
 
-//handle focusin for form
-
+/***************************************************************************************************
+ * handleFocusInForForm - clear out messages when input form is focused
+ * @returns {undefined} none
+ * @calls clearWarningMessageForitemName, clearSuccessMessage, clearWarningMessageForItemCategory,
+ * clearWarningMessageForTransactionDate, clearWarningMessageForamountSpent, clearUpdateError
+ */
 function handleFocusInForForm() {
       $("#itemName").focusin(function () {
             clearWarningMessageForitemName();
@@ -432,7 +471,11 @@ function handleFocusInForForm() {
             clearUpdateError();
       });
 }
-
+/***************************************************************************************************
+ * showWarningMessageForitemName, showWarningMessageForItemCategory,
+ * showWarningMessageForTransactionDate, showWarningMessageForamountSpent - show warning message for certain input field
+ * @returns {undefined} none
+ */
 function showWarningMessageForitemName() {
       $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').addClass('has-error');
       $("#itemName").closest('.form-group').next('.warningText').removeClass('hidden');
@@ -456,7 +499,11 @@ function showWarningMessageForamountSpent() {
       $("#amountSpent").closest('.form-group').next('.warningText').removeClass('hidden');
       $("#amountSpent").next('.glyphicon-remove').removeClass('hidden');
 }
-
+/***************************************************************************************************
+ * showSuccessMessageForitemName, showSuccessMessageForItemCategory,
+ * showSuccessMessageForTransactionDate, showSuccessMessageForamountSpent - show success message for certain input field
+ * @returns {undefined} none
+ */
 function showSuccessMessageForitemName() {
       $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').addClass('has-success');
       $("#itemName").closest('.form-group').next('.warningText').next('.successText').removeClass('hidden');
@@ -480,7 +527,11 @@ function showSuccessMessageForamountSpent() {
       $("#amountSpent").closest('.form-group').next('.warningText').next('.successText').removeClass('hidden');
       $("#amountSpent").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
 }
-
+/***************************************************************************************************
+ * clearWarningMessageForitemName, clearWarningMessageForItemCategory,
+ * clearWarningMessageForTransactionDate, clearWarningMessageForamountSpent - clear warning message for certain input field
+ * @returns {undefined} none
+ */
 function clearWarningMessageForitemName() {
       $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
       $("#itemName").closest('.form-group').next('.warningText').addClass('hidden');
@@ -532,7 +583,10 @@ function clearWarningMessageForamountSpent() {
 //       $("#amountSpent").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
 //       $("#amountSpent").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
 // }
-
+/***************************************************************************************************
+ * clearSuccessMessage - clear success message for certain input field
+ * @returns {undefined} none
+ */
 function clearSuccessMessage() {
       $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
       $("#itemName").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
@@ -547,19 +601,28 @@ function clearSuccessMessage() {
       $("#amountSpent").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
       $("#amountSpent").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
 }
-
+/***************************************************************************************************
+ * clearUpdateError - clear update error
+ * @returns {undefined} none
+ */
 function clearUpdateError() {
       if (!$(".update-item-error").hasClass('hidden')) {
             $(".update-item-error").addClass('hidden');
       }
 }
-
+/***************************************************************************************************
+ * clearAddError - clear add error
+ * @returns {undefined} none
+ */
 function clearAddError() {
       if (!$(".add-item-error").hasClass('hidden')) {
             $(".add-item-error").addClass('hidden');
       }
 }
-
+/***************************************************************************************************
+ * getTodayDate - get today date and update global variables today, dd, mm, yyyy, todayDate
+ * @returns {string} 
+ */
 function getTodayDate() {
       today = new Date();
       dd = today.getDate();
