@@ -79,9 +79,9 @@
                 display: none
             }
         }
-        @media only screen and (max-width: 427px) {
+        @media only screen and (max-width: 447px) {
             .col-xs-12 {
-                font-size: xx-small;
+                font-size: x-small;
             }
         }
         @media only screen and (min-width: 427px) {
@@ -151,7 +151,9 @@
         </div>
         <div class="item-add-form container pull-right col-lg-3 col-md-4 col-sm-12 col-xs-12">
             <h4 class="add-expense-header">Add Expense</h4>
-            <div class="form-group input-group">
+
+            <!-- Item Name Input Area Starts-->
+            <div class="form-group input-group itemNameContainer">
                 <span class="input-group-addon">
                     <span class="glyphicon glyphicon-tag"></span>
                 </span>
@@ -159,15 +161,18 @@
                 <span class="glyphicon glyphicon-remove form-control-feedback hidden"></span>
                 <span class="glyphicon glyphicon-ok form-control-feedback hidden"></span>
             </div>
-            <div class="form-group input-group warningText alert alert-danger hidden">
+            <div class="form-group input-group warningText itemWarningText alert alert-danger hidden">
                 <span class="glyphicon glyphicon-remove-circle"></span>
                 <span>Item must be 2 to 20 characters long</span>
             </div>
-            <div class="form-group input-group successText alert alert-success hidden">
+            <div class="form-group input-group successText itemSuccessText alert alert-success hidden">
                 <span class="glyphicon glyphicon-ok-circle"></span>
                 <span>Item is between 2 to 20 characters long</span>
             </div>
-            <div class="form-group input-group">
+            <!-- Item Name Input Area Ends-->
+
+            <!-- Expense Category Input Area Starts-->
+            <div class="form-group input-group expenseCategoryContainer">
                 <span class="input-group-addon">
                     <span class="glyphicon glyphicon-list-alt"></span>
                 </span>
@@ -177,15 +182,18 @@
                 <span class="glyphicon glyphicon-remove form-control-feedback hidden"></span>
                 <span class="glyphicon glyphicon-ok form-control-feedback hidden"></span>
             </div>
-            <div class="form-group input-group warningText alert alert-danger hidden">
+            <div class="form-group input-group warningText categoryWarningText alert alert-danger hidden">
                 <span class="glyphicon glyphicon-remove-circle"></span>
                 <span>Expense category required</span>
             </div>
-            <div class="form-group input-group successText alert alert-success hidden">
+            <div class="form-group input-group successText categorySuccessText alert alert-success hidden">
                 <span class="glyphicon glyphicon-ok-circle"></span>
                 <span>Expense category is checked</span>
             </div>
-            <div class="form-group input-group">
+            <!-- Expense Category Input Area Ends-->
+
+            <!-- Transaction Date Input Area Starts-->
+            <div class="form-group input-group transactionDateContainer">
                 <span class="input-group-addon">
                     <span class="glyphicon glyphicon-calendar"></span>
                 </span>
@@ -194,15 +202,18 @@
                 <span class="glyphicon glyphicon-remove form-control-feedback hidden"></span>
                 <span class="glyphicon glyphicon-ok form-control-feedback hidden"></span>
             </div>
-            <div class="form-group input-group warningText alert alert-danger hidden">
+            <div class="form-group input-group warningText dateWarningText alert alert-danger hidden">
                 <span class="glyphicon glyphicon-remove-circle"></span>
                 <span>Please pick a date</span>
             </div>
-            <div class="form-group input-group successText alert alert-success hidden">
+            <div class="form-group input-group successText dateSuccessText alert alert-success hidden">
                 <span class="glyphicon glyphicon-ok-circle"></span>
                 <span>Date is picked</span>
             </div>
-            <div class="form-group input-group">
+            <!-- Transaction Date Input Area Ends-->
+
+            <!-- Amount Spent Input Area Starts-->
+            <div class="form-group input-group amountSpentContainer">
                 <span class="input-group-addon">
                     <span class="glyphicon glyphicon-usd"></span>
                 </span>
@@ -211,14 +222,16 @@
                 <span class="glyphicon glyphicon-remove form-control-feedback hidden"></span>
                 <span class="glyphicon glyphicon-ok form-control-feedback hidden"></span>
             </div>
-            <div class="form-group input-group warningText alert alert-danger hidden">
+            <div class="form-group input-group warningText amountWarningText alert alert-danger hidden">
                 <span class="glyphicon glyphicon-remove-circle"></span>
                 <span>Must be at least $0.01</span>
             </div>
-            <div class="form-group input-group successText alert alert-success hidden">
+            <div class="form-group input-group successText amountSuccessText alert alert-success hidden">
                 <span class="glyphicon glyphicon-ok-circle"></span>
                 <span>Amount spent is entered</span>
             </div>
+            <!-- Amount Spent Input Area Ends-->
+
             <button type="button" class="addItem btn btn-add" onclick="">Add</button>
             <button type="button" class="cancelItem btn btn-default" onclick="">Cancel</button>
             <div class="add-item-error hidden">There was a problem trying to add this expense. Please try again.</div>

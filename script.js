@@ -477,26 +477,26 @@ function handleFocusInForForm() {
  * @returns {undefined} none
  */
 function showWarningMessageForitemName() {
-      $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').addClass('has-error');
-      $("#itemName").closest('.form-group').next('.warningText').removeClass('hidden');
+      $(".itemNameContainer").addClass('has-error');
+      $('.itemWarningText').removeClass('hidden');
       $("#itemName").next('.glyphicon-remove').removeClass('hidden');
 }
 
 function showWarningMessageForItemCategory() {
-      $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').addClass('has-error');
-      $("#expenseCategory").closest('.form-group').next('.warningText').removeClass('hidden');
+      $(".expenseCategoryContainer").addClass('has-error');
+      $('.categoryWarningText').removeClass('hidden');
       $("#expenseCategory").next('.glyphicon-remove').removeClass('hidden');
 }
 
 function showWarningMessageForTransactionDate() {
-      $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').addClass('has-error');
-      $("#transactionDate").closest('.form-group').next('.warningText').removeClass('hidden');
+      $(".transactionDateContainer").addClass('has-error');
+      $('.dateWarningText').removeClass('hidden');
       $("#transactionDate").next('.glyphicon-remove').removeClass('hidden');
 }
 
 function showWarningMessageForamountSpent() {
-      $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').addClass('has-error');
-      $("#amountSpent").closest('.form-group').next('.warningText').removeClass('hidden');
+      $(".amountSpentContainer").addClass('has-error');
+      $('.amountWarningText').removeClass('hidden');
       $("#amountSpent").next('.glyphicon-remove').removeClass('hidden');
 }
 /***************************************************************************************************
@@ -533,29 +533,29 @@ function showSuccessMessageForamountSpent() {
  * @returns {undefined} none
  */
 function clearWarningMessageForitemName() {
-      $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
-      $("#itemName").closest('.form-group').next('.warningText').addClass('hidden');
+      $(".itemNameContainer").removeClass('has-error');
+      $('.itemWarningText').addClass('hidden');
       $("#itemName").next('.glyphicon-remove').addClass('hidden');
       clearAddError()
 }
 
 function clearWarningMessageForItemCategory() {
-      $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
-      $("#expenseCategory").closest('.form-group').next('.warningText').addClass('hidden');
+      $(".expenseCategoryContainer").removeClass('has-error');
+      $('.categoryWarningText').addClass('hidden');
       $("#expenseCategory").next('.glyphicon-remove').addClass('hidden');
       clearAddError()
 }
 
 function clearWarningMessageForTransactionDate() {
-      $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
-      $("#transactionDate").closest('.form-group').next('.warningText').addClass('hidden');
+      $(".transactionDateContainer").removeClass('has-error');
+      $('.dateWarningText').addClass('hidden');
       $("#transactionDate").next('.glyphicon-remove').addClass('hidden');
       clearAddError()
 }
 
 function clearWarningMessageForamountSpent() {
-      $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
-      $("#amountSpent").closest('.form-group').next('.warningText').addClass('hidden');
+      $(".amountSpentContainer").removeClass('has-error');
+      $('.amountWarningText').addClass('hidden');
       $("#amountSpent").next('.glyphicon-remove').addClass('hidden');
       clearAddError()
 }
