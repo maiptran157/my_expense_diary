@@ -99,10 +99,10 @@ function handleAddClicked() {
 function handleCancelClick() {
       clearAddExpenseFormInputs();
       clearSuccessMessage();
-      clearWarningMessageForitemName();
-      clearWarningMessageForItemCategory();
-      clearWarningMessageForTransactionDate();
-      clearWarningMessageForamountSpent();
+      clearWarningMessage('transactionDateContainer', 'dateWarningText', 'transactionDate');
+      clearWarningMessage('itemNameContainer', 'itemWarningText', 'itemName');
+      clearWarningMessage('expenseCategoryContainer', 'categoryWarningText', 'expenseCategory');
+      clearWarningMessage('amountSpentContainer', 'amountWarningText', 'amountSpent');
       isValidated = false;
 }
 /***************************************************************************************************
@@ -469,19 +469,19 @@ function handleFocusInForForm() {
             $("#amountSpent").focus()
       })
       $("#itemName").focusin(function () {
-            clearWarningMessageForitemName();
+            clearWarningMessage('itemNameContainer', 'itemWarningText', 'itemName');
             clearSuccessMessage();
       });
       $("#expenseCategory").focusin(function () {
-            clearWarningMessageForItemCategory();
+            clearWarningMessage('expenseCategoryContainer', 'categoryWarningText', 'expenseCategory');
             clearSuccessMessage();
       });
       $("#transactionDate").focusin(function () {
-            clearWarningMessageForTransactionDate();
+            clearWarningMessage('transactionDateContainer', 'dateWarningText', 'transactionDate');
             clearSuccessMessage();
       })
       $("#amountSpent").focusin(function () {
-            clearWarningMessageForamountSpent();
+            clearWarningMessage('amountSpentContainer', 'amountWarningText', 'amountSpent');
             clearSuccessMessage();
       });
       $("#itemNameUpdate, #expenseCategoryUpdate, #transactionDateUpdate, #amountSpentUpdate").focusin(function () {
@@ -517,31 +517,11 @@ function showSuccessMessage(parentContainer, successText, idOfInput) {
  * clearWarningMessageForTransactionDate, clearWarningMessageForamountSpent - clear warning message for certain input field
  * @returns {undefined} none
  */
-function clearWarningMessageForitemName() {
-      $(".itemNameContainer").removeClass('has-error');
-      $('.itemWarningText').addClass('hidden');
-      $("#itemName").next('.glyphicon-remove').addClass('hidden');
-      clearAddError()
-}
 
-function clearWarningMessageForItemCategory() {
-      $(".expenseCategoryContainer").removeClass('has-error');
-      $('.categoryWarningText').addClass('hidden');
-      $("#expenseCategory").next('.glyphicon-remove').addClass('hidden');
-      clearAddError()
-}
-
-function clearWarningMessageForTransactionDate() {
-      $(".transactionDateContainer").removeClass('has-error');
-      $('.dateWarningText').addClass('hidden');
-      $("#transactionDate").next('.glyphicon-remove').addClass('hidden');
-      clearAddError()
-}
-
-function clearWarningMessageForamountSpent() {
-      $(".amountSpentContainer").removeClass('has-error');
-      $('.amountWarningText').addClass('hidden');
-      $("#amountSpent").next('.glyphicon-remove').addClass('hidden');
+function clearWarningMessage(parentContainer, warningText, idOfInput) {
+      $(`.${parentContainer}`).removeClass('has-error');
+      $(`.${warningText}`).addClass('hidden');
+      $(`#${idOfInput}`).next('.glyphicon-remove').addClass('hidden');
       clearAddError()
 }
 
