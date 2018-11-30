@@ -126,22 +126,26 @@ function validateAndAddItem(isValidated = false) {
       var conditionForLetter = (!isLetter && !isGreaterThan1Char)
 
       if (!ItemVal.transactionDate) {
-            showWarningMessageForTransactionDate();
+            // showWarningMessageForTransactionDate();
+            showWarningMessage('transactionDateContainer', 'dateWarningText', 'transactionDate')
       } else {
             showSuccessMessageForTransactionDate();
       }
       if (conditionForLetter || ItemVal.itemName.length > 20) {
-            showWarningMessageForitemName();
+            // showWarningMessageForitemName();
+            showWarningMessage('itemNameContainer', 'itemWarningText', 'itemName')
       } else {
             showSuccessMessageForitemName();
       }
       if (!ItemVal.expenseCategory) {
-            showWarningMessageForItemCategory();
+            // showWarningMessageForItemCategory();
+            showWarningMessage('expenseCategoryContainer', 'categoryWarningText', 'expenseCategory')
       } else {
             showSuccessMessageForItemCategory();
       }
       if (parseFloat(ItemVal.amountSpent).toFixed(2) < 0.01 || !ItemVal.amountSpent) {
-            showWarningMessageForamountSpent();
+            // showWarningMessageForamountSpent();
+            showWarningMessage('amountSpentContainer', 'amountWarningText', 'amountSpent')
       } else {
             showSuccessMessageForamountSpent();
       }
@@ -164,6 +168,7 @@ function validateAndAddItem(isValidated = false) {
             clearAddExpenseFormInputs();
             clearSuccessMessage();
             sendDataToServer();
+            isValidated = false;
       }
 }
 /***************************************************************************************************
@@ -476,55 +481,38 @@ function handleFocusInForForm() {
  * showWarningMessageForTransactionDate, showWarningMessageForamountSpent - show warning message for certain input field
  * @returns {undefined} none
  */
-function showWarningMessageForitemName() {
-      $(".itemNameContainer").addClass('has-error');
-      $('.itemWarningText').removeClass('hidden');
-      $("#itemName").next('.glyphicon-remove').removeClass('hidden');
+function showWarningMessage(parentContainer, warningText, idOfInput) {
+      $(`.${parentContainer}`).addClass('has-error');
+      $(`.${warningText}`).removeClass('hidden');
+      $(`#${idOfInput}`).next('.glyphicon-remove').removeClass('hidden');
 }
 
-function showWarningMessageForItemCategory() {
-      $(".expenseCategoryContainer").addClass('has-error');
-      $('.categoryWarningText').removeClass('hidden');
-      $("#expenseCategory").next('.glyphicon-remove').removeClass('hidden');
-}
-
-function showWarningMessageForTransactionDate() {
-      $(".transactionDateContainer").addClass('has-error');
-      $('.dateWarningText').removeClass('hidden');
-      $("#transactionDate").next('.glyphicon-remove').removeClass('hidden');
-}
-
-function showWarningMessageForamountSpent() {
-      $(".amountSpentContainer").addClass('has-error');
-      $('.amountWarningText').removeClass('hidden');
-      $("#amountSpent").next('.glyphicon-remove').removeClass('hidden');
-}
 /***************************************************************************************************
  * showSuccessMessageForitemName, showSuccessMessageForItemCategory,
  * showSuccessMessageForTransactionDate, showSuccessMessageForamountSpent - show success message for certain input field
  * @returns {undefined} none
  */
 function showSuccessMessageForitemName() {
-      $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').addClass('has-success');
-      $("#itemName").closest('.form-group').next('.warningText').next('.successText').removeClass('hidden');
+      $('.itemNameContainer').addClass('has-success');
+      $('.itemSuccessText').removeClass('hidden');
       $("#itemName").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
 }
 
 function showSuccessMessageForItemCategory() {
-      $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').addClass('has-success');
-      $("#expenseCategory").closest('.form-group').next('.warningText').next('.successText').removeClass('hidden');
+      $('.expenseCategoryContainer').addClass('has-success');
+      $('.categorySuccessText').removeClass('hidden');
       $("#expenseCategory").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
 }
 
 function showSuccessMessageForTransactionDate() {
-      $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').addClass('has-success');
-      $("#transactionDate").closest('.form-group').next('.warningText').next('.successText').removeClass('hidden');
+      $('.transactionDateContainer').addClass('has-success');
+      $('.dateSuccessText').removeClass('hidden');
       $("#transactionDate").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
 }
 
 function showSuccessMessageForamountSpent() {
-      $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').addClass('has-success');
-      $("#amountSpent").closest('.form-group').next('.warningText').next('.successText').removeClass('hidden');
+      $('.amountSpentContainer').addClass('has-success');
+      $('.amountSuccessText').removeClass('hidden');
       $("#amountSpent").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
 }
 /***************************************************************************************************
@@ -560,46 +548,14 @@ function clearWarningMessageForamountSpent() {
       clearAddError()
 }
 
-// function clearSuccessMessageForitemName() {
-//       $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
-//       $("#itemName").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
-//       $("#itemName").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
-// }
-
-// function clearSuccessMessageForItemCategory() {
-//       $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
-//       $("#expenseCategory").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
-//       $("#expenseCategory").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
-// }
-
-// function clearSuccessMessageForTransactionDate() {
-//       $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
-//       $("#transactionDate").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
-//       $("#transactionDate").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
-// }
-
-// function clearSuccessMessageForamountSpent() {
-//       $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
-//       $("#amountSpent").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
-//       $("#amountSpent").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
-// }
 /***************************************************************************************************
  * clearSuccessMessage - clear success message for certain input field
  * @returns {undefined} none
  */
 function clearSuccessMessage() {
-      $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
-      $("#itemName").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
-      $("#itemName").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
-      $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
-      $("#expenseCategory").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
-      $("#expenseCategory").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
-      $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
-      $("#transactionDate").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
-      $("#transactionDate").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
-      $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
-      $("#amountSpent").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
-      $("#amountSpent").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+      $('.itemNameContainer, .expenseCategoryContainer, .transactionDateContainer, .amountSpentContainer').removeClass('has-success');
+      $('.itemSuccessText, .categorySuccessText, .dateSuccessText, .amountSuccessText').addClass('hidden');
+      $("#itemName, #expenseCategory, #transactionDate, #amountSpent").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
 }
 /***************************************************************************************************
  * clearUpdateError - clear update error
