@@ -126,28 +126,28 @@ function validateAndAddItem(isValidated = false) {
       var conditionForLetter = (!isLetter && !isGreaterThan1Char)
 
       if (!ItemVal.transactionDate) {
-            // showWarningMessageForTransactionDate();
             showWarningMessage('transactionDateContainer', 'dateWarningText', 'transactionDate')
       } else {
-            showSuccessMessageForTransactionDate();
+            //clear warnning message here
+            showSuccessMessage('transactionDateContainer', 'dateSuccessText', 'transactionDate');
       }
       if (conditionForLetter || ItemVal.itemName.length > 20) {
-            // showWarningMessageForitemName();
             showWarningMessage('itemNameContainer', 'itemWarningText', 'itemName')
       } else {
-            showSuccessMessageForitemName();
+            //clear warnning message here
+            showSuccessMessage('itemNameContainer', 'itemSuccessText', 'itemName');
       }
       if (!ItemVal.expenseCategory) {
-            // showWarningMessageForItemCategory();
             showWarningMessage('expenseCategoryContainer', 'categoryWarningText', 'expenseCategory')
       } else {
-            showSuccessMessageForItemCategory();
+            //clear warnning message here
+            showSuccessMessage('expenseCategoryContainer', 'categorySuccessText', 'expenseCategory');
       }
       if (parseFloat(ItemVal.amountSpent).toFixed(2) < 0.01 || !ItemVal.amountSpent) {
-            // showWarningMessageForamountSpent();
             showWarningMessage('amountSpentContainer', 'amountWarningText', 'amountSpent')
       } else {
-            showSuccessMessageForamountSpent();
+            //clear warnning message here
+            showSuccessMessage('amountSpentContainer', 'amountSuccessText', 'amountSpent');
       }
       if (ItemVal.transactionDate) {
             if (!conditionForLetter) {
@@ -481,6 +481,7 @@ function handleFocusInForForm() {
  * showWarningMessageForTransactionDate, showWarningMessageForamountSpent - show warning message for certain input field
  * @returns {undefined} none
  */
+
 function showWarningMessage(parentContainer, warningText, idOfInput) {
       $(`.${parentContainer}`).addClass('has-error');
       $(`.${warningText}`).removeClass('hidden');
@@ -492,29 +493,13 @@ function showWarningMessage(parentContainer, warningText, idOfInput) {
  * showSuccessMessageForTransactionDate, showSuccessMessageForamountSpent - show success message for certain input field
  * @returns {undefined} none
  */
-function showSuccessMessageForitemName() {
-      $('.itemNameContainer').addClass('has-success');
-      $('.itemSuccessText').removeClass('hidden');
-      $("#itemName").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
+
+function showSuccessMessage(parentContainer, successText, idOfInput) {
+      $(`.${parentContainer}`).addClass('has-success');
+      $(`.${successText}`).removeClass('hidden');
+      $(`#${idOfInput}`).next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
 }
 
-function showSuccessMessageForItemCategory() {
-      $('.expenseCategoryContainer').addClass('has-success');
-      $('.categorySuccessText').removeClass('hidden');
-      $("#expenseCategory").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
-}
-
-function showSuccessMessageForTransactionDate() {
-      $('.transactionDateContainer').addClass('has-success');
-      $('.dateSuccessText').removeClass('hidden');
-      $("#transactionDate").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
-}
-
-function showSuccessMessageForamountSpent() {
-      $('.amountSpentContainer').addClass('has-success');
-      $('.amountSuccessText').removeClass('hidden');
-      $("#amountSpent").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
-}
 /***************************************************************************************************
  * clearWarningMessageForitemName, clearWarningMessageForItemCategory,
  * clearWarningMessageForTransactionDate, clearWarningMessageForamountSpent - clear warning message for certain input field
