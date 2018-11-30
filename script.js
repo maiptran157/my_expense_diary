@@ -456,6 +456,18 @@ function deleteItemFromDatabase(idOfItemToBeDeleted, indexOfCurrentItem, newTr) 
  * clearWarningMessageForTransactionDate, clearWarningMessageForamountSpent, clearUpdateError
  */
 function handleFocusInForForm() {
+      $(".itemNameContainer .input-group-addon").click(function () {
+            $("#itemName").focus()
+      })
+      $(".expenseCategoryContainer .input-group-addon").click(function () {
+            $("#expenseCategory").focus()
+      })
+      $(".transactionDateContainer .input-group-addon").click(function () {
+            $("#transactionDate").focus()
+      })
+      $(".amountSpentContainer .input-group-addon").click(function () {
+            $("#amountSpent").focus()
+      })
       $("#itemName").focusin(function () {
             clearWarningMessageForitemName();
             clearSuccessMessage();
