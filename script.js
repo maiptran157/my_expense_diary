@@ -314,7 +314,7 @@ function updateItemList() {
 function calculateExpenseTotal() {
       var totalExpense = 0;
       for (var itemArrayIndex = 0; itemArrayIndex < itemArray.length; itemArrayIndex++) {
-            if (itemArray[itemArrayIndex].transactionDate.substring(0, 4) == yyyy && itemArray[0].transactionDate.substring(5, 7) == mm) {
+            if (itemArray[itemArrayIndex].transactionDate.substring(0, 4) == yyyy && itemArray[itemArrayIndex].transactionDate.substring(5, 7) == mm) {
                   totalExpense += parseInt(itemArray[itemArrayIndex].amountSpent);
             }
       };
@@ -455,19 +455,12 @@ function updateDataToServer(idOfItemToBeUpdated) {
                   success: function (serverResponse) {
                         var result = serverResponse;
                         if (result.success) {
-                              for (var i = 0; i < itemArray.length; i++) {
-                                    if (itemArray[i].id === idOfItemToBeUpdated) {
-                                          itemArray[i].itemName = ItemVal.itemName;
-                                          itemArray[i].expenseCategory = ItemVal.expenseCategory;
-                                          itemArray[i].transactionDate = ItemVal.transactionDate;
-                                          itemArray[i].amountSpent = ItemVal.amountSpent;
-                                    }
-                              }
                               handleCancelClickForModal();
                               $(".modal-update").modal('hide');
                               $(".item-list tbody").empty();
+                              itemArray = [];
                               getDataFromServer();
-                              // renderExpenseTotal();
+                              renderExpenseTotal();
                         } else {
                               $(".update-item-error").removeClass('hidden');
                         }
