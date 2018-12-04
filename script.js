@@ -58,11 +58,11 @@ function initializeApp() {
  */
 function renderOptionOfCategoriesOnDOM() {
       for (var i = 0; i < categories.length; i++) {
-            var optionOfCourse = $("<option>", {
+            var categoryOption = $("<option>", {
                   value: categories[i],
                   text: categories[i]
             })
-            $('#expenseCategory, #expenseCategoryUpdate').append(optionOfCourse);
+            $('#expenseCategory, #expenseCategoryUpdate').append(categoryOption);
       }
 }
 /***************************************************************************************************
@@ -80,6 +80,7 @@ function addClickHandlersToElements() {
       //       }
       // });
       $(".cancelItem").click(handleCancelClick);
+      $(".cancelItemForModal").click(handleCancelClickForModal);
 }
 
 /***************************************************************************************************
@@ -99,12 +100,21 @@ function handleAddClicked() {
 function handleCancelClick() {
       clearAddExpenseFormInputs();
       clearSuccessMessage();
-      clearWarningMessageForitemName();
-      clearWarningMessageForItemCategory();
-      clearWarningMessageForTransactionDate();
-      clearWarningMessageForamountSpent();
+      clearWarningMessage('transactionDateContainer', 'dateWarningText', 'transactionDate');
+      clearWarningMessage('itemNameContainer', 'itemWarningText', 'itemName');
+      clearWarningMessage('expenseCategoryContainer', 'categoryWarningText', 'expenseCategory');
+      clearWarningMessage('amountSpentContainer', 'amountWarningText', 'amountSpent');
       isValidated = false;
 }
+
+function handleCancelClickForModal() {
+      clearSuccessMessageForModal();
+      clearWarningMessage('transactionDateContainerForModal', 'dateWarningTextForModal', 'transactionDateUpdate');
+      clearWarningMessage('itemNameContainerForModal', 'itemWarningTextForModal', 'itemNameUpdate');
+      clearWarningMessage('expenseCategoryContainerForModal', 'categoryWarningTextForModal', 'expenseCategoryUpdate');
+      clearWarningMessage('amountSpentContainerForModal', 'amountWarningTextForModal', 'amountSpentUpdate');
+}
+
 /***************************************************************************************************
  * validateAndAddItem - creates a ItemVal objects based on input fields in the form and adds the object to global itemArray array
  * @param {boolean} isValidated
@@ -126,24 +136,28 @@ function validateAndAddItem(isValidated = false) {
       var conditionForLetter = (!isLetter && !isGreaterThan1Char)
 
       if (!ItemVal.transactionDate) {
-            showWarningMessageForTransactionDate();
+            showWarningMessage('transactionDateContainer', 'dateWarningText', 'transactionDate')
       } else {
-            showSuccessMessageForTransactionDate();
+            //clear warnning message here
+            showSuccessMessage('transactionDateContainer', 'dateSuccessText', 'transactionDate');
       }
       if (conditionForLetter || ItemVal.itemName.length > 20) {
-            showWarningMessageForitemName();
+            showWarningMessage('itemNameContainer', 'itemWarningText', 'itemName')
       } else {
-            showSuccessMessageForitemName();
+            //clear warnning message here
+            showSuccessMessage('itemNameContainer', 'itemSuccessText', 'itemName');
       }
       if (!ItemVal.expenseCategory) {
-            showWarningMessageForItemCategory();
+            showWarningMessage('expenseCategoryContainer', 'categoryWarningText', 'expenseCategory')
       } else {
-            showSuccessMessageForItemCategory();
+            //clear warnning message here
+            showSuccessMessage('expenseCategoryContainer', 'categorySuccessText', 'expenseCategory');
       }
       if (parseFloat(ItemVal.amountSpent).toFixed(2) < 0.01 || !ItemVal.amountSpent) {
-            showWarningMessageForamountSpent();
+            showWarningMessage('amountSpentContainer', 'amountWarningText', 'amountSpent')
       } else {
-            showSuccessMessageForamountSpent();
+            //clear warnning message here
+            showSuccessMessage('amountSpentContainer', 'amountSuccessText', 'amountSpent');
       }
       if (ItemVal.transactionDate) {
             if (!conditionForLetter) {
@@ -164,6 +178,7 @@ function validateAndAddItem(isValidated = false) {
             clearAddExpenseFormInputs();
             clearSuccessMessage();
             sendDataToServer();
+            isValidated = false;
       }
 }
 /***************************************************************************************************
@@ -299,7 +314,7 @@ function updateItemList() {
 function calculateExpenseTotal() {
       var totalExpense = 0;
       for (var itemArrayIndex = 0; itemArrayIndex < itemArray.length; itemArrayIndex++) {
-            if (itemArray[itemArrayIndex].transactionDate.substring(0, 4) == yyyy && itemArray[0].transactionDate.substring(5, 7) == mm) {
+            if (itemArray[itemArrayIndex].transactionDate.substring(0, 4) == yyyy && itemArray[itemArrayIndex].transactionDate.substring(5, 7) == mm) {
                   totalExpense += parseInt(itemArray[itemArrayIndex].amountSpent);
             }
       };
@@ -365,6 +380,54 @@ function sendDataToServer() {
             }
       })
 }
+
+function validateUpdateItem(ItemVal) {
+      //check if input contains alphabetical letters and length is greater than 2
+      var isLetter = /^[a-zA-Z]+$/.test(ItemVal.itemName);
+      var isGreaterThan1Char = /[a-z]{2,}/gi.test(ItemVal.itemName);
+      var conditionForLetter = (!isLetter && !isGreaterThan1Char)
+
+      if (!ItemVal.transactionDate) {
+            showWarningMessage('transactionDateContainerForModal', 'dateWarningTextForModal', 'transactionDateUpdate')
+      } else {
+            //clear warnning message here
+            showSuccessMessage('transactionDateContainerForModal', 'dateSuccessTextForModal', 'transactionDateUpdate');
+      }
+      if (conditionForLetter || ItemVal.itemName.length > 20) {
+            showWarningMessage('itemNameContainerForModal', 'itemWarningTextForModal', 'itemNameUpdate')
+      } else {
+            //clear warnning message here
+            showSuccessMessage('itemNameContainerForModal', 'itemSuccessTextForModal', 'itemNameUpdate');
+      }
+      if (!ItemVal.expenseCategory) {
+            showWarningMessage('expenseCategoryContainerForModal', 'categoryWarningTextForModal', 'expenseCategoryUpdate')
+      } else {
+            //clear warnning message here
+            showSuccessMessage('expenseCategoryContainerForModal', 'categorySuccessTextForModal', 'expenseCategoryUpdate');
+      }
+      if (parseFloat(ItemVal.amountSpent).toFixed(2) < 0.01 || !ItemVal.amountSpent) {
+            showWarningMessage('amountSpentContainerForModal', 'amountWarningTextForModal', 'amountSpentUpdate')
+      } else {
+            //clear warnning message here
+            showSuccessMessage('amountSpentContainerForModal', 'amountSuccessTextForModal', 'amountSpentUpdate');
+      }
+      if (ItemVal.transactionDate) {
+            if (!conditionForLetter) {
+                  if (ItemVal.itemName.length <= 20) {
+                        if (ItemVal.expenseCategory) {
+                              if (parseFloat(ItemVal.amountSpent).toFixed(2) >= 0.01) {
+                                    if (ItemVal.amountSpent) {
+                                          return true;
+                                    }
+                              }
+                        }
+                  }
+            }
+      }
+}
+
+
+
 /***************************************************************************************************
  * updateDataToServer - update the item with specific id in the database
  * @param idOfItemToBeUpdated {string} the id of item to be updated
@@ -377,40 +440,36 @@ function updateDataToServer(idOfItemToBeUpdated) {
       ItemVal.expenseCategory = $("#expenseCategoryUpdate option:selected").val();
       ItemVal.transactionDate = $("#transactionDateUpdate").val();
       ItemVal.amountSpent = $("#amountSpentUpdate").val();
-      $.ajax({
-            dataType: 'JSON',
-            data: {
-                  itemID: idOfItemToBeUpdated,
-                  itemName: ItemVal.itemName,
-                  expenseCategory: ItemVal.expenseCategory,
-                  transactionDate: ItemVal.transactionDate,
-                  amountSpent: ItemVal.amountSpent,
-            },
-            method: 'POST',
-            url: api_url.update_item_url,
-            success: function (serverResponse) {
-                  var result = serverResponse;
-                  if (result.success) {
-                        for (var i = 0; i < itemArray.length; i++) {
-                              if (itemArray[i].id === idOfItemToBeUpdated) {
-                                    itemArray[i].itemName = ItemVal.itemName;
-                                    itemArray[i].expenseCategory = ItemVal.expenseCategory;
-                                    itemArray[i].transactionDate = ItemVal.transactionDate;
-                                    itemArray[i].amountSpent = ItemVal.amountSpent;
-                              }
+      if (validateUpdateItem(ItemVal)) {
+            $.ajax({
+                  dataType: 'JSON',
+                  data: {
+                        itemID: idOfItemToBeUpdated,
+                        itemName: ItemVal.itemName,
+                        expenseCategory: ItemVal.expenseCategory,
+                        transactionDate: ItemVal.transactionDate,
+                        amountSpent: ItemVal.amountSpent,
+                  },
+                  method: 'POST',
+                  url: api_url.update_item_url,
+                  success: function (serverResponse) {
+                        var result = serverResponse;
+                        if (result.success) {
+                              handleCancelClickForModal();
+                              $(".modal-update").modal('hide');
+                              $(".item-list tbody").empty();
+                              itemArray = [];
+                              getDataFromServer();
+                              renderExpenseTotal();
+                        } else {
+                              $(".update-item-error").removeClass('hidden');
                         }
-                        $(".modal-update").modal('hide');
-                        $(".item-list tbody").empty();
-                        getDataFromServer();
-                        renderExpenseTotal();
-                  } else {
+                  },
+                  error: function (serverResponse) {
                         $(".update-item-error").removeClass('hidden');
                   }
-            },
-            error: function (serverResponse) {
-                  $(".update-item-error").removeClass('hidden');
-            }
-      })
+            })
+      }
 }
 /***************************************************************************************************
  * deleteItemFromDatabase - delete item from database
@@ -451,21 +510,65 @@ function deleteItemFromDatabase(idOfItemToBeDeleted, indexOfCurrentItem, newTr) 
  * clearWarningMessageForTransactionDate, clearWarningMessageForamountSpent, clearUpdateError
  */
 function handleFocusInForForm() {
+      //hanlde focus when clicked on glyphicon for Add Expense section
+      $(".itemNameContainer .input-group-addon").click(function () {
+            $("#itemName").focus()
+      })
+      $(".expenseCategoryContainer .input-group-addon").click(function () {
+            $("#expenseCategory").focus()
+      })
+      $(".transactionDateContainer .input-group-addon").click(function () {
+            $("#transactionDate").focus()
+      })
+      $(".amountSpentContainer .input-group-addon").click(function () {
+            $("#amountSpent").focus()
+      })
+      //hanlde focus when clicked on glyphicon for Update modal
+      $(".itemNameContainerForModal .input-group-addon").click(function () {
+            $("#itemNameUpdate").focus()
+      })
+      $(".expenseCategoryContainerForModal .input-group-addon").click(function () {
+            $("#expenseCategoryUpdate").focus()
+      })
+      $(".transactionDateContainerForModal .input-group-addon").click(function () {
+            $("#transactionDateUpdate").focus()
+      })
+      $(".amountSpentContainerForModal .input-group-addon").click(function () {
+            $("#amountSpentUpdate").focus()
+      })
+      //clear messages for Add Expense section
       $("#itemName").focusin(function () {
-            clearWarningMessageForitemName();
+            clearWarningMessage('itemNameContainer', 'itemWarningText', 'itemName');
             clearSuccessMessage();
       });
       $("#expenseCategory").focusin(function () {
-            clearWarningMessageForItemCategory();
+            clearWarningMessage('expenseCategoryContainer', 'categoryWarningText', 'expenseCategory');
             clearSuccessMessage();
       });
       $("#transactionDate").focusin(function () {
-            clearWarningMessageForTransactionDate();
+            clearWarningMessage('transactionDateContainer', 'dateWarningText', 'transactionDate');
             clearSuccessMessage();
       })
       $("#amountSpent").focusin(function () {
-            clearWarningMessageForamountSpent();
+            clearWarningMessage('amountSpentContainer', 'amountWarningText', 'amountSpent');
             clearSuccessMessage();
+      });
+      //clear messages for Update modal
+      $("#itemNameUpdate").focusin(function () {
+            clearWarningMessage('itemNameContainerForModal', 'itemWarningTextForModal', 'itemNameUpdate');
+            clearSuccessMessageForModal();
+      });
+      $("#expenseCategoryUpdate").focusin(function () {
+            clearWarningMessage('expenseCategoryContainerForModal', 'categoryWarningTextForModal', 'expenseCategoryUpdate');
+            clearSuccessMessageForModal();
+      });
+      $("#transactionDateUpdate").focusin(function () {
+            clearWarningMessage('transactionDateContainerForModal', 'dateWarningTextForModal', 'transactionDateUpdate');
+            clearSuccessMessageForModal();
+      })
+      $("#amountSpentUpdate").focusin(function () {
+            clearWarningMessage('amountSpentContainerForModal', 'amountWarningTextForModal', 'amountSpentUpdate');
+            clearSuccessMessageForModal();
       });
       $("#itemNameUpdate, #expenseCategoryUpdate, #transactionDateUpdate, #amountSpentUpdate").focusin(function () {
             clearUpdateError();
@@ -476,131 +579,54 @@ function handleFocusInForForm() {
  * showWarningMessageForTransactionDate, showWarningMessageForamountSpent - show warning message for certain input field
  * @returns {undefined} none
  */
-function showWarningMessageForitemName() {
-      $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').addClass('has-error');
-      $("#itemName").closest('.form-group').next('.warningText').removeClass('hidden');
-      $("#itemName").next('.glyphicon-remove').removeClass('hidden');
+
+function showWarningMessage(parentContainer, warningText, idOfInput) {
+      $(`.${parentContainer}`).addClass('has-error');
+      $(`.${warningText}`).removeClass('hidden');
+      $(`#${idOfInput}`).next('.glyphicon-remove').removeClass('hidden');
 }
 
-function showWarningMessageForItemCategory() {
-      $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').addClass('has-error');
-      $("#expenseCategory").closest('.form-group').next('.warningText').removeClass('hidden');
-      $("#expenseCategory").next('.glyphicon-remove').removeClass('hidden');
-}
-
-function showWarningMessageForTransactionDate() {
-      $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').addClass('has-error');
-      $("#transactionDate").closest('.form-group').next('.warningText').removeClass('hidden');
-      $("#transactionDate").next('.glyphicon-remove').removeClass('hidden');
-}
-
-function showWarningMessageForamountSpent() {
-      $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').addClass('has-error');
-      $("#amountSpent").closest('.form-group').next('.warningText').removeClass('hidden');
-      $("#amountSpent").next('.glyphicon-remove').removeClass('hidden');
-}
 /***************************************************************************************************
  * showSuccessMessageForitemName, showSuccessMessageForItemCategory,
  * showSuccessMessageForTransactionDate, showSuccessMessageForamountSpent - show success message for certain input field
  * @returns {undefined} none
  */
-function showSuccessMessageForitemName() {
-      $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').addClass('has-success');
-      $("#itemName").closest('.form-group').next('.warningText').next('.successText').removeClass('hidden');
-      $("#itemName").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
+
+function showSuccessMessage(parentContainer, successText, idOfInput) {
+      $(`.${parentContainer}`).addClass('has-success');
+      $(`.${successText}`).removeClass('hidden');
+      $(`#${idOfInput}`).next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
 }
 
-function showSuccessMessageForItemCategory() {
-      $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').addClass('has-success');
-      $("#expenseCategory").closest('.form-group').next('.warningText').next('.successText').removeClass('hidden');
-      $("#expenseCategory").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
-}
-
-function showSuccessMessageForTransactionDate() {
-      $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').addClass('has-success');
-      $("#transactionDate").closest('.form-group').next('.warningText').next('.successText').removeClass('hidden');
-      $("#transactionDate").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
-}
-
-function showSuccessMessageForamountSpent() {
-      $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').addClass('has-success');
-      $("#amountSpent").closest('.form-group').next('.warningText').next('.successText').removeClass('hidden');
-      $("#amountSpent").next('.glyphicon-remove').next('.glyphicon-ok').removeClass('hidden');
-}
 /***************************************************************************************************
  * clearWarningMessageForitemName, clearWarningMessageForItemCategory,
  * clearWarningMessageForTransactionDate, clearWarningMessageForamountSpent - clear warning message for certain input field
  * @returns {undefined} none
  */
-function clearWarningMessageForitemName() {
-      $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
-      $("#itemName").closest('.form-group').next('.warningText').addClass('hidden');
-      $("#itemName").next('.glyphicon-remove').addClass('hidden');
+
+function clearWarningMessage(parentContainer, warningText, idOfInput) {
+      $(`.${parentContainer}`).removeClass('has-error');
+      $(`.${warningText}`).addClass('hidden');
+      $(`#${idOfInput}`).next('.glyphicon-remove').addClass('hidden');
       clearAddError()
 }
 
-function clearWarningMessageForItemCategory() {
-      $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
-      $("#expenseCategory").closest('.form-group').next('.warningText').addClass('hidden');
-      $("#expenseCategory").next('.glyphicon-remove').addClass('hidden');
-      clearAddError()
-}
-
-function clearWarningMessageForTransactionDate() {
-      $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
-      $("#transactionDate").closest('.form-group').next('.warningText').addClass('hidden');
-      $("#transactionDate").next('.glyphicon-remove').addClass('hidden');
-      clearAddError()
-}
-
-function clearWarningMessageForamountSpent() {
-      $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').removeClass('has-error');
-      $("#amountSpent").closest('.form-group').next('.warningText').addClass('hidden');
-      $("#amountSpent").next('.glyphicon-remove').addClass('hidden');
-      clearAddError()
-}
-
-// function clearSuccessMessageForitemName() {
-//       $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
-//       $("#itemName").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
-//       $("#itemName").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
-// }
-
-// function clearSuccessMessageForItemCategory() {
-//       $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
-//       $("#expenseCategory").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
-//       $("#expenseCategory").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
-// }
-
-// function clearSuccessMessageForTransactionDate() {
-//       $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
-//       $("#transactionDate").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
-//       $("#transactionDate").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
-// }
-
-// function clearSuccessMessageForamountSpent() {
-//       $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
-//       $("#amountSpent").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
-//       $("#amountSpent").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
-// }
 /***************************************************************************************************
  * clearSuccessMessage - clear success message for certain input field
  * @returns {undefined} none
  */
 function clearSuccessMessage() {
-      $(".glyphicon-tag").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
-      $("#itemName").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
-      $("#itemName").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
-      $(".glyphicon-list-alt").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
-      $("#expenseCategory").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
-      $("#expenseCategory").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
-      $(".glyphicon-calendar").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
-      $("#transactionDate").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
-      $("#transactionDate").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
-      $(".glyphicon-usd").closest('.input-group-addon').closest('.input-group').removeClass('has-success');
-      $("#amountSpent").closest('.form-group').next('.warningText').next('.successText').addClass('hidden');
-      $("#amountSpent").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+      $('.itemNameContainer, .expenseCategoryContainer, .transactionDateContainer, .amountSpentContainer').removeClass('has-success');
+      $('.itemSuccessText, .categorySuccessText, .dateSuccessText, .amountSuccessText').addClass('hidden');
+      $("#itemName, #expenseCategory, #transactionDate, #amountSpent").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
 }
+
+function clearSuccessMessageForModal() {
+      $('.itemNameContainerForModal, .expenseCategoryContainerForModal, .transactionDateContainerForModal, .amountSpentContainerForModal').removeClass('has-success');
+      $('.itemSuccessTextForModal, .categorySuccessTextForModal, .dateSuccessTextForModal, .amountSuccessTextForModal').addClass('hidden');
+      $("#itemNameUpdate, #expenseCategoryUpdate, #transactionDateUpdate, #amountSpentUpdate").next('.glyphicon-remove').next('.glyphicon-ok').addClass('hidden');
+}
+
 /***************************************************************************************************
  * clearUpdateError - clear update error
  * @returns {undefined} none
