@@ -20,7 +20,7 @@
         #transactionDate:required:invalid, #transactionDateUpdate:required:invalid { 
             color: #999; 
         }
-            select:required:invalid {
+        select:required:invalid {
             color: #999;
         }
         option {
@@ -73,6 +73,9 @@
         }
         .glyphicon-remove-circle, .glyphicon-ok-circle {
             margin-right: 1%;
+        }
+        .expenseCategory:hover, .expenseCategory:focus, .expenseCategoryUpdate:hover, .expenseCategoryUpdate:focus {
+            cursor: context-menu !important;
         }
         @media only screen and (max-width: 1180px) {
             .update-btn-w-text, .delete-btn-w-text{
