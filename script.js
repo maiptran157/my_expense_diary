@@ -46,6 +46,13 @@ var categories = ['Grocery', 'Home Repairs', 'Mortgage/Rent', 'Beauty', 'Clothes
  * initializes the application, including adding click handlers and pulling in any data from the server, in later versions
  */
 function initializeApp() {
+      var uniqueBrowserId = localStorage.getItem('uniqueBrowserId');
+      if (!uniqueBrowserId) {
+            var randomGeneratedId = Math.floor(Math.random() * new Date());
+            uniqueBrowserId = localStorage.setItem('uniqueBrowserId', randomGeneratedId);
+      } else {
+            console.log("uniqueBrowserId:", uniqueBrowserId);
+      }
       $(".todayDate").text(`Current date: ${todayDate}`);
       getDataFromServer();
       addClickHandlersToElements();
@@ -335,9 +342,12 @@ function renderExpenseTotal() {
  */
 function getDataFromServer() {
       $.ajax({
-            url: api_url.get_items_url,
             dataType: 'JSON',
-            method: 'GET',
+            data: {
+                  browserId: localStorage.getItem('uniqueBrowserId'),
+            },
+            method: 'POST',
+            url: api_url.get_items_url,
             success: function (serverResponse) {
                   var result = {};
                   result = serverResponse;
@@ -366,6 +376,7 @@ function sendDataToServer() {
                   expenseCategory: lastObjInitemArray.expenseCategory,
                   transactionDate: lastObjInitemArray.transactionDate,
                   amountSpent: lastObjInitemArray.amountSpent,
+                  browserId: localStorage.getItem('uniqueBrowserId'),
             },
             method: 'POST',
             url: api_url.add_item_url,
@@ -449,6 +460,7 @@ function updateDataToServer(idOfItemToBeUpdated) {
                         expenseCategory: ItemVal.expenseCategory,
                         transactionDate: ItemVal.transactionDate,
                         amountSpent: ItemVal.amountSpent,
+                        browserId: localStorage.getItem('uniqueBrowserId'),
                   },
                   method: 'POST',
                   url: api_url.update_item_url,
@@ -484,6 +496,7 @@ function deleteItemFromDatabase(idOfItemToBeDeleted, indexOfCurrentItem, newTr) 
             method: 'POST',
             data: {
                   itemID: itemID,
+                  browserId: localStorage.getItem('uniqueBrowserId'),
             },
             url: api_url.delete_item_url,
             success: function (serverResponse) {

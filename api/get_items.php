@@ -2,9 +2,11 @@
 
 require_once('../config/mysql_connect.php');
 
+$browser_id = $_POST['browserId'];
+
 $output=[];
 
-$query = "SELECT id, item_name as itemName, expense_category as expenseCategory, transaction_date as transactionDate, amount_spent as amountSpent FROM items";
+$query = "SELECT id, item_name as itemName, expense_category as expenseCategory, transaction_date as transactionDate, amount_spent as amountSpent FROM items WHERE browser_id = '$browser_id' ";
 
 $result = mysqli_query($conn, $query);
 
