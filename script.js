@@ -50,8 +50,6 @@ function initializeApp() {
       if (!uniqueBrowserId) {
             var randomGeneratedId = Math.floor(Math.random() * new Date());
             uniqueBrowserId = localStorage.setItem('uniqueBrowserId', randomGeneratedId);
-      } else {
-            console.log("uniqueBrowserId:", uniqueBrowserId);
       }
       $(".todayDate").text(`Current date: ${todayDate}`);
       getDataFromServer();
@@ -136,7 +134,7 @@ function validateAndAddItem(isValidated = false) {
       ItemVal.itemName = $("#itemName").val();
       ItemVal.expenseCategory = $("#expenseCategory option:selected").val();
       ItemVal.transactionDate = $("#transactionDate").val();
-      ItemVal.amountSpent = $("#amountSpent").val();
+      ItemVal.amountSpent = parseFloat($("#amountSpent").val()).toFixed(2);
       //check if input contains alphabetical letters and length is greater than 2
       var isLetter = /^[a-zA-Z]+$/.test(ItemVal.itemName);
       var isGreaterThan1Char = /[a-z]{2,}/gi.test(ItemVal.itemName);
@@ -181,10 +179,10 @@ function validateAndAddItem(isValidated = false) {
       }
       if (isValidated) {
             itemArray.push(ItemVal); //push to global item array
-            updateItemList();
             clearAddExpenseFormInputs();
             clearSuccessMessage();
             sendDataToServer();
+            updateItemList();
             isValidated = false;
       }
 }
@@ -384,6 +382,8 @@ function sendDataToServer() {
                   var result = serverResponse;
                   if (result.success) {
                         lastObjInitemArray.id = result.data[result.data.length - 1].id;
+                  } else {
+                        $(".add-item-error").removeClass('hidden')
                   }
             },
             error: function (serverResponse) {
