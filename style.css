@@ -1,0 +1,216 @@
+select {
+    -webkit-appearance: none;   
+}
+#transactionDate:required:valid, #transactionDateUpdate:required:valid { 
+    color: #000; 
+}
+#transactionDate:required:invalid, #transactionDateUpdate:required:invalid { 
+    color: #999; 
+}
+select:required:invalid {
+    color: #999;
+}
+option {
+    color: black;
+}
+tr:hover{
+    background-color: white;
+}
+.add-item-error {
+    color: red;
+}
+.page-header {
+    color: rgb(0, 115, 255);
+}
+.btn-add {
+    color: white;
+    background-color: rgb(0, 115, 255);
+}
+.btn-add:hover {
+    color: white;
+    background-color:  rgb(0, 110, 244);
+}
+.btn-update {
+    color: white;
+    background-color: yellowgreen;
+}
+.btn-update:hover {
+    color: white;
+    background-color: rgb(136, 193, 23);
+}
+.updateBtn, .deleteBtn {
+    margin: 1.5%;
+}
+#updateModal .modal-dialog .modal-content .modal-header {
+    color: yellowgreen;
+    text-align: center;
+}
+#deleteModal .modal-dialog .modal-content .modal-header, .update-item-error, .delete-item-error {
+    color: red;
+    text-align: center;
+}
+.modal {
+    text-align: center;
+}
+@media screen and (min-width: 768px) { 
+    .modal:before {
+        display: inline-block;
+        vertical-align: middle;
+        content: " ";
+        height: 100%;
+    }
+}
+.modal-dialog {
+    display: inline-block;
+    text-align: left;
+    vertical-align: middle;
+}
+.modal-body{
+    font-size: 15px;
+}
+.add-expense-header{
+    color: rgb(0, 115, 255);
+}
+.alert-danger, .alert-success {
+    width: -webkit-fill-available;
+}
+.glyphicon-remove-circle, .glyphicon-ok-circle {
+    margin-right: 1%;
+}
+#expenseCategory, #expenseCategoryUpdate {
+    cursor: context-menu;
+}
+@media only screen and (max-width: 1180px) {
+    .update-btn-w-text, .delete-btn-w-text{
+        display: none
+    }
+}
+@media only screen and (max-width: 465px) {
+    .item-list-container {
+        font-size: small;
+    }
+    .updateBtn, .deleteBtn {
+        width: 32px;
+        height: 32px;
+    }
+    .glyphicon-pencil:before, .glyphicon-trash:before {
+        display: flex;
+        justify-content: center;
+    }
+}
+@media only screen and (min-width: 427px) {
+    body {
+        font-size: 16px;
+    }
+}
+@media only screen and (min-width: 597px) {
+    body {
+        font-size: 16px;
+    }
+}
+@media only screen and (min-width: 1085.56px) {
+    body {
+        font-size: 16px;
+    }
+}
+@media only screen and (min-width: 1174.44px) {
+    body {
+        font-size: 12px;
+    }
+}
+@media only screen and (min-width: 1181.44px) {
+    body {
+        font-size: 13px;
+    }
+}
+@media only screen and (min-width: 1151px) {
+    body {
+        font-size: 14px;
+    }
+}
+@media only screen and (min-width: 1164px) {
+    body {
+        font-size: 13px;
+    }
+}
+@media only screen and (min-width: 1562px) {
+    body {
+        font-size: 14px;
+    }
+}
+@media only screen and (min-width: 1181.01px){
+    .glyphicon-pencil, .glyphicon-trash {
+        display: none 
+    }
+}
+
+.addingItem {
+    display: none;
+    width: 155px;
+}
+.adding-text{
+    margin-left: -30px;
+}
+.loading-items{
+    display: none;
+}
+.lds-ellipsis {
+    display: none;
+    display: inline-block;
+    position: relative;
+    width: 20px;
+    height: 11px;
+}
+.lds-ellipsis div {
+position: absolute;
+width: 11px;
+height: 11px;
+border-radius: 50%;
+animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+.add-btn-loading-ellipsis div {
+    background: #fff;
+}
+.loading-items-ellipsis div {
+    background: rgb(0, 115, 255);
+}
+.lds-ellipsis div:nth-child(1) {
+left: 6px;
+animation: lds-ellipsis1 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(2) {
+left: 6px;
+animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(3) {
+left: 26px;
+animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(4) {
+left: 45px;
+animation: lds-ellipsis3 0.6s infinite;
+}
+@keyframes lds-ellipsis1 {
+0% {
+    transform: scale(0);
+}
+100% {
+    transform: scale(1);
+}
+}
+@keyframes lds-ellipsis3 {
+0% {
+    transform: scale(1);
+}
+100% {
+    transform: scale(0);
+}
+}
+@keyframes lds-ellipsis2 {
+0% {
+    transform: translate(0, 0);
+}
+100% {
+    transform: translate(19px, 0);
+}
+}

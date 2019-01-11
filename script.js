@@ -46,6 +46,7 @@ var categories = ['Grocery', 'Home Repairs', 'Mortgage/Rent', 'Beauty', 'Clothes
  * initializes the application, including adding click handlers and pulling in any data from the server, in later versions
  */
 function initializeApp() {
+      showLoadingForItems();
       var uniqueBrowserId = localStorage.getItem('uniqueBrowserId');
       if (!uniqueBrowserId) {
             var randomGeneratedId = Math.floor(Math.random() * new Date());
@@ -134,7 +135,7 @@ function validateAndAddItem(isValidated = false) {
       ItemVal.itemName = $("#itemName").val();
       ItemVal.expenseCategory = $("#expenseCategory option:selected").val();
       ItemVal.transactionDate = $("#transactionDate").val();
-      ItemVal.amountSpent = parseFloat($("#amountSpent").val()).toFixed(2);
+      ItemVal.amountSpent = $("#amountSpent").val();
       //check if input contains alphabetical letters and length is greater than 2
       var isLetter = /^[a-zA-Z]+$/.test(ItemVal.itemName);
       var isGreaterThan1Char = /[a-z]{2,}/gi.test(ItemVal.itemName);
@@ -178,6 +179,7 @@ function validateAndAddItem(isValidated = false) {
             }
       }
       if (isValidated) {
+            ItemVal.amountSpent = parseFloat($("#amountSpent").val()).toFixed(2);
             itemArray.push(ItemVal); //push to global item array
             clearAddExpenseFormInputs();
             clearSuccessMessage();
@@ -338,7 +340,7 @@ function renderExpenseTotal() {
  * @calls updateItemList
  */
 function getDataFromServer() {
-      $.ajax({
+      $.when($.ajax({
             dataType: 'JSON',
             data: {
                   browserId: localStorage.getItem('uniqueBrowserId'),
@@ -355,6 +357,8 @@ function getDataFromServer() {
                         };
                   };
             }
+      })).then(() => {
+            hideLoadingItems();
       });
 }
 
@@ -365,7 +369,7 @@ function getDataFromServer() {
  * @calls renderItemOnDom, calculateExpenseTotal, renderExpenseTotal
  */
 function sendDataToServer() {
-      showLoading();
+      showLoadingBtn();
       var lastObjInitemArray = itemArray[itemArray.length - 1];
       $.when($.ajax({
             dataType: 'JSON',
@@ -393,7 +397,7 @@ function sendDataToServer() {
 
             }
       })).then(() => {
-            hideLoading();
+            hideLoadingBtn();
       });
 }
 
@@ -457,7 +461,8 @@ function updateDataToServer(idOfItemToBeUpdated) {
       ItemVal.transactionDate = $("#transactionDateUpdate").val();
       ItemVal.amountSpent = $("#amountSpentUpdate").val();
       if (validateUpdateItem(ItemVal)) {
-            $.ajax({
+            disableAction();
+            $.when($.ajax({
                   dataType: 'JSON',
                   data: {
                         itemID: idOfItemToBeUpdated,
@@ -472,10 +477,12 @@ function updateDataToServer(idOfItemToBeUpdated) {
                   success: function (serverResponse) {
                         var result = serverResponse;
                         if (result.success) {
+                              itemArray = [];
                               handleCancelClickForModal();
                               $(".modal-update").modal('hide');
                               $(".item-list tbody").empty();
-                              itemArray = [];
+                              createAndAppendLoadingItems();
+                              showLoadingForItems();
                               getDataFromServer();
                               renderExpenseTotal();
                         } else {
@@ -485,6 +492,8 @@ function updateDataToServer(idOfItemToBeUpdated) {
                   error: function (serverResponse) {
                         $(".update-item-error").removeClass('hidden');
                   }
+            })).then(() => {
+                  enableAction();
             })
       }
 }
@@ -681,16 +690,40 @@ function getTodayDate() {
       return `${yyyy}-${mm}-${dd}`;
 }
 
-function showLoading() {
-      $("input, select").prop("disabled", true);
+function disableAction() {
+      $("input, select, button").prop("disabled", true);
       $("#expenseCategory").css('cursor', 'not-allowed');
+}
+
+function enableAction() {
+      $("input, select, button").prop("disabled", false);
+      $("#expenseCategory").css('cursor', 'context-menu');
+}
+
+function showLoadingBtn() {
+      disableAction();
       $(".addItem").hide();
       $(".addingItem").show();
 }
 
-function hideLoading() {
-      $("input, select").prop("disabled", false);
-      $("#expenseCategory").css('cursor', 'context-menu');
+function hideLoadingBtn() {
+      enableAction();
       $(".addItem").show();
       $(".addingItem").hide();
+}
+
+function showLoadingForItems() {
+      $(".loading-items").show();
+}
+
+function hideLoadingItems() {
+      $(".loading-items").hide();
+}
+
+function createAndAppendLoadingItems() {
+      var newTr = $("<tr>", {
+            class: "loading-items",
+            html: "<td></td><td></td><td><div class=\"lds-ellipsis loading-items-ellipsis\"><div></div><div></div><div></div><div></div></div></td>",
+      });
+      $(".item-list tbody").append(newTr);
 }
