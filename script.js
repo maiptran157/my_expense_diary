@@ -182,7 +182,6 @@ function validateAndAddItem(isValidated = false) {
             clearAddExpenseFormInputs();
             clearSuccessMessage();
             sendDataToServer();
-            updateItemList();
             isValidated = false;
       }
 }
@@ -366,8 +365,9 @@ function getDataFromServer() {
  * @calls renderItemOnDom, calculateExpenseTotal, renderExpenseTotal
  */
 function sendDataToServer() {
+      showLoading();
       var lastObjInitemArray = itemArray[itemArray.length - 1];
-      $.ajax({
+      $.when($.ajax({
             dataType: 'JSON',
             data: {
                   itemName: lastObjInitemArray.itemName,
@@ -382,14 +382,19 @@ function sendDataToServer() {
                   var result = serverResponse;
                   if (result.success) {
                         lastObjInitemArray.id = result.data[result.data.length - 1].id;
+                        updateItemList();
                   } else {
-                        $(".add-item-error").removeClass('hidden')
+                        $(".add-item-error").removeClass('hidden');
+
                   }
             },
             error: function (serverResponse) {
-                  $(".add-item-error").removeClass('hidden')
+                  $(".add-item-error").removeClass('hidden');
+
             }
-      })
+      })).then(() => {
+            hideLoading();
+      });
 }
 
 function validateUpdateItem(ItemVal) {
@@ -621,7 +626,7 @@ function clearWarningMessage(parentContainer, warningText, idOfInput) {
       $(`.${parentContainer}`).removeClass('has-error');
       $(`.${warningText}`).addClass('hidden');
       $(`#${idOfInput}`).next('.glyphicon-remove').addClass('hidden');
-      clearAddError()
+      clearAddError();
 }
 
 /***************************************************************************************************
@@ -674,4 +679,18 @@ function getTodayDate() {
             mm = '0' + mm
       }
       return `${yyyy}-${mm}-${dd}`;
+}
+
+function showLoading() {
+      $("input, select").prop("disabled", true);
+      $("#expenseCategory").css('cursor', 'not-allowed');
+      $(".addItem").hide();
+      $(".addingItem").show();
+}
+
+function hideLoading() {
+      $("input, select").prop("disabled", false);
+      $("#expenseCategory").css('cursor', 'context-menu');
+      $(".addItem").show();
+      $(".addingItem").hide();
 }
