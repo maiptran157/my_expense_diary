@@ -5,10 +5,13 @@ $item_name = $_POST['itemName'];
 $expense_category = $_POST['expenseCategory'];
 $transaction_date = $_POST['transactionDate'];
 $amount_spent = $_POST['amountSpent'];
+$browser_id = $_POST['browserId'];
 
 // print($item_name);
 
-$addItemQuery = "INSERT INTO `items` (`id`, `item_name`, `expense_category`, `transaction_date`, `amount_spent`) VALUES (NULL, '{$item_name}', '{$expense_category}', '{$transaction_date}', '{$amount_spent}');";
+$addItemQuery = "INSERT INTO `items` 
+(`id`, `item_name`, `expense_category`, `transaction_date`, `amount_spent`, `browser_id`) 
+VALUES (NULL, '{$item_name}', '{$expense_category}', '{$transaction_date}', '{$amount_spent}', '{$browser_id}');";
 
 mysqli_query($conn, $addItemQuery);
 
@@ -21,6 +24,7 @@ $query = "SELECT DISTINCT *
           AND expense_category = '$expense_category'
           AND transaction_date = '$transaction_date'
           AND amount_spent = '$amount_spent'
+          AND browser_id = '$browser_id' 
           ";
 
 // print($query);

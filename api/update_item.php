@@ -6,8 +6,16 @@ $item_name = $_POST['itemName'];
 $expense_category = $_POST['expenseCategory'];
 $transaction_date = $_POST['transactionDate'];
 $amount_spent = $_POST['amountSpent'];
+$browser_id = $_POST['browserId'];
 
-$updateItemQuery = "UPDATE `items` SET `item_name` = '{$item_name}', `expense_category` = '{$expense_category}', `transaction_date` = '{$transaction_date}', `amount_spent` = '{$amount_spent}' WHERE `items`.`id` = '{$item_id}'";
+$updateItemQuery = "UPDATE `items` 
+SET `item_name` = '{$item_name}', 
+`expense_category` = '{$expense_category}', 
+`transaction_date` = '{$transaction_date}', 
+`amount_spent` = '{$amount_spent}' 
+WHERE `items`.`id` = '{$item_id}' 
+AND browser_id = '{$browser_id}' 
+";
 
 // print($updateItemQuery);
 // exit();
@@ -21,6 +29,7 @@ $query = "SELECT DISTINCT *
           AND expense_category = '$expense_category'
           AND transaction_date = '$transaction_date'
           AND amount_spent = '$amount_spent'
+          AND browser_id = '$browser_id'
           ";
 
 $result = mysqli_query($conn, $query);
