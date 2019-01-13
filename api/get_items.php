@@ -17,10 +17,10 @@ if(mysqli_num_rows($result) > 0){
     }
 } else if(mysqli_num_rows($result) === 0) {
 
-    $item_name = 'Sample item';
-    $expense_category = 'Sample category';
+    $item_name = 'Sample Item';
+    $expense_category = 'Sample Category';
     $transaction_date = date('Y-m-d');
-    $amount_spent = '1.00';
+    $amount_spent = '0.00';
 
     $addSampleItemQuery = "INSERT INTO `items` 
     (`id`, `item_name`, `expense_category`, `transaction_date`, `amount_spent`, `browser_id`) 
