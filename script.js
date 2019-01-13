@@ -35,6 +35,7 @@ var itemArray = [];
 var today = null;
 var dd = null;
 var mm = null;
+var monthInText = '';
 var yyyy = null;
 var todayDate = getTodayDate();
 var categories = ['Grocery', 'Home Repairs', 'Mortgage/Rent', 'Beauty', 'Clothes', 'Electronics', 'Home Appliances', 'Home Goods', 'Furniture', 'Entertainment', 'Dining Out', 'Other']
@@ -52,11 +53,12 @@ function initializeApp() {
             var randomGeneratedId = Math.floor(Math.random() * new Date());
             uniqueBrowserId = localStorage.setItem('uniqueBrowserId', randomGeneratedId);
       }
-      $(".todayDate").text(`Current date: ${todayDate}`);
+      getTodayDate();
       getDataFromServer();
       addClickHandlersToElements();
       renderOptionOfCategoriesOnDOM();
       handleFocusInForForm();
+      $('[data-toggle="tooltip"]').tooltip();
 }
 /***************************************************************************************************
  * renderOptionOfCategoriesOnDOM - display options for expense category on DOM
@@ -319,11 +321,15 @@ function updateItemList() {
  */
 function calculateExpenseTotal() {
       var totalExpense = 0;
+
       for (var itemArrayIndex = 0; itemArrayIndex < itemArray.length; itemArrayIndex++) {
+
             if (itemArray[itemArrayIndex].transactionDate.substring(0, 4) == yyyy && itemArray[itemArrayIndex].transactionDate.substring(5, 7) == mm) {
-                  totalExpense += parseInt(itemArray[itemArrayIndex].amountSpent);
+                  totalExpense += parseFloat(itemArray[itemArrayIndex].amountSpent);
             }
+
       };
+
       return totalExpense;
 }
 /***************************************************************************************************
@@ -332,7 +338,7 @@ function calculateExpenseTotal() {
  */
 function renderExpenseTotal() {
       var currentMonthExpense = calculateExpenseTotal();
-      $(".currentMonthExpense").text(`$${currentMonthExpense}`);
+      $(".currentMonthExpense").text(`$${parseFloat(currentMonthExpense).toFixed(2)}`);
 }
 /***************************************************************************************************
  * getDataFromServer - get item from server
@@ -680,7 +686,47 @@ function getTodayDate() {
       today = new Date();
       dd = today.getDate();
       mm = today.getMonth() + 1; //January is 0!
+
+      switch (mm) {
+
+            case 1:
+                  monthInText = 'January';
+                  break;
+            case 2:
+                  monthInText = 'February';
+                  break;
+            case 3:
+                  monthInText = 'March';
+                  break;
+            case 4:
+                  monthInText = 'April';
+                  break;
+            case 5:
+                  monthInText = 'May';
+                  break;
+            case 6:
+                  monthInText = 'June';
+                  break;
+            case 7:
+                  monthInText = 'July';
+                  break;
+            case 8:
+                  monthInText = 'August';
+                  break;
+            case 9:
+                  monthInText = 'September';
+                  break;
+            case 10:
+                  monthInText = 'October';
+                  break;
+            case 11:
+                  monthInText = 'November';
+                  break;
+            default:
+                  monthInText = 'December';
+      }
       yyyy = today.getFullYear();
+      $(".currentMonthDesh1, .currentMonthDesh3").attr('title', `${monthInText} ${yyyy}`);
       if (dd < 10) {
             dd = '0' + dd
       }
