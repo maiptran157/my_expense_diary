@@ -35,6 +35,7 @@ var itemArray = [];
 var today = null;
 var dd = null;
 var mm = null;
+var monthInText = '';
 var yyyy = null;
 var todayDate = getTodayDate();
 var categories = ['Grocery', 'Home Repairs', 'Mortgage/Rent', 'Beauty', 'Clothes', 'Electronics', 'Home Appliances', 'Home Goods', 'Furniture', 'Entertainment', 'Dining Out', 'Other']
@@ -46,11 +47,18 @@ var categories = ['Grocery', 'Home Repairs', 'Mortgage/Rent', 'Beauty', 'Clothes
  * initializes the application, including adding click handlers and pulling in any data from the server, in later versions
  */
 function initializeApp() {
-      $(".todayDate").text(`Current date: ${todayDate}`);
+      showLoadingForItems();
+      var uniqueBrowserId = localStorage.getItem('uniqueBrowserId');
+      if (!uniqueBrowserId) {
+            var randomGeneratedId = Math.floor(Math.random() * new Date());
+            uniqueBrowserId = localStorage.setItem('uniqueBrowserId', randomGeneratedId);
+      }
+      getTodayDate();
       getDataFromServer();
       addClickHandlersToElements();
       renderOptionOfCategoriesOnDOM();
       handleFocusInForForm();
+      $('[data-toggle="tooltip"]').tooltip();
 }
 /***************************************************************************************************
  * renderOptionOfCategoriesOnDOM - display options for expense category on DOM
@@ -173,8 +181,8 @@ function validateAndAddItem(isValidated = false) {
             }
       }
       if (isValidated) {
+            ItemVal.amountSpent = parseFloat($("#amountSpent").val()).toFixed(2);
             itemArray.push(ItemVal); //push to global item array
-            updateItemList();
             clearAddExpenseFormInputs();
             clearSuccessMessage();
             sendDataToServer();
@@ -313,11 +321,15 @@ function updateItemList() {
  */
 function calculateExpenseTotal() {
       var totalExpense = 0;
+
       for (var itemArrayIndex = 0; itemArrayIndex < itemArray.length; itemArrayIndex++) {
+
             if (itemArray[itemArrayIndex].transactionDate.substring(0, 4) == yyyy && itemArray[itemArrayIndex].transactionDate.substring(5, 7) == mm) {
-                  totalExpense += parseInt(itemArray[itemArrayIndex].amountSpent);
+                  totalExpense += parseFloat(itemArray[itemArrayIndex].amountSpent);
             }
+
       };
+
       return totalExpense;
 }
 /***************************************************************************************************
@@ -326,7 +338,7 @@ function calculateExpenseTotal() {
  */
 function renderExpenseTotal() {
       var currentMonthExpense = calculateExpenseTotal();
-      $(".currentMonthExpense").text(`$${currentMonthExpense}`);
+      $(".currentMonthExpense").text(`$${parseFloat(currentMonthExpense).toFixed(2)}`);
 }
 /***************************************************************************************************
  * getDataFromServer - get item from server
@@ -334,10 +346,13 @@ function renderExpenseTotal() {
  * @calls updateItemList
  */
 function getDataFromServer() {
-      $.ajax({
-            url: api_url.get_items_url,
+      $.when($.ajax({
             dataType: 'JSON',
-            method: 'GET',
+            data: {
+                  browserId: localStorage.getItem('uniqueBrowserId'),
+            },
+            method: 'POST',
+            url: api_url.get_items_url,
             success: function (serverResponse) {
                   var result = {};
                   result = serverResponse;
@@ -348,6 +363,8 @@ function getDataFromServer() {
                         };
                   };
             }
+      })).then(() => {
+            hideLoadingItems();
       });
 }
 
@@ -358,14 +375,16 @@ function getDataFromServer() {
  * @calls renderItemOnDom, calculateExpenseTotal, renderExpenseTotal
  */
 function sendDataToServer() {
+      showLoadingBtn();
       var lastObjInitemArray = itemArray[itemArray.length - 1];
-      $.ajax({
+      $.when($.ajax({
             dataType: 'JSON',
             data: {
                   itemName: lastObjInitemArray.itemName,
                   expenseCategory: lastObjInitemArray.expenseCategory,
                   transactionDate: lastObjInitemArray.transactionDate,
                   amountSpent: lastObjInitemArray.amountSpent,
+                  browserId: localStorage.getItem('uniqueBrowserId'),
             },
             method: 'POST',
             url: api_url.add_item_url,
@@ -373,12 +392,19 @@ function sendDataToServer() {
                   var result = serverResponse;
                   if (result.success) {
                         lastObjInitemArray.id = result.data[result.data.length - 1].id;
+                        updateItemList();
+                  } else {
+                        $(".add-item-error").removeClass('hidden');
+
                   }
             },
             error: function (serverResponse) {
-                  $(".add-item-error").removeClass('hidden')
+                  $(".add-item-error").removeClass('hidden');
+
             }
-      })
+      })).then(() => {
+            hideLoadingBtn();
+      });
 }
 
 function validateUpdateItem(ItemVal) {
@@ -441,7 +467,8 @@ function updateDataToServer(idOfItemToBeUpdated) {
       ItemVal.transactionDate = $("#transactionDateUpdate").val();
       ItemVal.amountSpent = $("#amountSpentUpdate").val();
       if (validateUpdateItem(ItemVal)) {
-            $.ajax({
+            disableAction();
+            $.when($.ajax({
                   dataType: 'JSON',
                   data: {
                         itemID: idOfItemToBeUpdated,
@@ -449,16 +476,19 @@ function updateDataToServer(idOfItemToBeUpdated) {
                         expenseCategory: ItemVal.expenseCategory,
                         transactionDate: ItemVal.transactionDate,
                         amountSpent: ItemVal.amountSpent,
+                        browserId: localStorage.getItem('uniqueBrowserId'),
                   },
                   method: 'POST',
                   url: api_url.update_item_url,
                   success: function (serverResponse) {
                         var result = serverResponse;
                         if (result.success) {
+                              itemArray = [];
                               handleCancelClickForModal();
                               $(".modal-update").modal('hide');
                               $(".item-list tbody").empty();
-                              itemArray = [];
+                              createAndAppendLoadingItems();
+                              showLoadingForItems();
                               getDataFromServer();
                               renderExpenseTotal();
                         } else {
@@ -468,6 +498,8 @@ function updateDataToServer(idOfItemToBeUpdated) {
                   error: function (serverResponse) {
                         $(".update-item-error").removeClass('hidden');
                   }
+            })).then(() => {
+                  enableAction();
             })
       }
 }
@@ -484,6 +516,7 @@ function deleteItemFromDatabase(idOfItemToBeDeleted, indexOfCurrentItem, newTr) 
             method: 'POST',
             data: {
                   itemID: itemID,
+                  browserId: localStorage.getItem('uniqueBrowserId'),
             },
             url: api_url.delete_item_url,
             success: function (serverResponse) {
@@ -608,7 +641,7 @@ function clearWarningMessage(parentContainer, warningText, idOfInput) {
       $(`.${parentContainer}`).removeClass('has-error');
       $(`.${warningText}`).addClass('hidden');
       $(`#${idOfInput}`).next('.glyphicon-remove').addClass('hidden');
-      clearAddError()
+      clearAddError();
 }
 
 /***************************************************************************************************
@@ -653,7 +686,47 @@ function getTodayDate() {
       today = new Date();
       dd = today.getDate();
       mm = today.getMonth() + 1; //January is 0!
+
+      switch (mm) {
+
+            case 1:
+                  monthInText = 'January';
+                  break;
+            case 2:
+                  monthInText = 'February';
+                  break;
+            case 3:
+                  monthInText = 'March';
+                  break;
+            case 4:
+                  monthInText = 'April';
+                  break;
+            case 5:
+                  monthInText = 'May';
+                  break;
+            case 6:
+                  monthInText = 'June';
+                  break;
+            case 7:
+                  monthInText = 'July';
+                  break;
+            case 8:
+                  monthInText = 'August';
+                  break;
+            case 9:
+                  monthInText = 'September';
+                  break;
+            case 10:
+                  monthInText = 'October';
+                  break;
+            case 11:
+                  monthInText = 'November';
+                  break;
+            default:
+                  monthInText = 'December';
+      }
       yyyy = today.getFullYear();
+      $(".currentMonthDesh1, .currentMonthDesh3").attr('title', `${monthInText} ${yyyy}`);
       if (dd < 10) {
             dd = '0' + dd
       }
@@ -661,4 +734,42 @@ function getTodayDate() {
             mm = '0' + mm
       }
       return `${yyyy}-${mm}-${dd}`;
+}
+
+function disableAction() {
+      $("input, select, button").prop("disabled", true);
+      $("#expenseCategory").css('cursor', 'not-allowed');
+}
+
+function enableAction() {
+      $("input, select, button").prop("disabled", false);
+      $("#expenseCategory").css('cursor', 'context-menu');
+}
+
+function showLoadingBtn() {
+      disableAction();
+      $(".addItem").hide();
+      $(".addingItem").show();
+}
+
+function hideLoadingBtn() {
+      enableAction();
+      $(".addItem").show();
+      $(".addingItem").hide();
+}
+
+function showLoadingForItems() {
+      $(".loading-items").show();
+}
+
+function hideLoadingItems() {
+      $(".loading-items").hide();
+}
+
+function createAndAppendLoadingItems() {
+      var newTr = $("<tr>", {
+            class: "loading-items",
+            html: "<td></td><td></td><td><div class=\"lds-ellipsis loading-items-ellipsis\"><div></div><div></div><div></div><div></div></div></td>",
+      });
+      $(".item-list tbody").append(newTr);
 }
